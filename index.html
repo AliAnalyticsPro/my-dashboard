@@ -11,20 +11,32 @@
   
   * { margin: 0; padding: 0; box-sizing: border-box; }
   
+  /* Dark Theme (Default) - Deepest Dark */
   body {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #0a0c15 0%, #0f1222 100%);
+    background: #050508;
     color: #ffffff;
     min-height: 100vh;
+    transition: all 0.3s ease;
   }
   
-  /* Modern Glassmorphism Cards */
+  body.light {
+    background: #f0f2f8;
+    color: #1a1d2e;
+  }
+  
+  /* Glassmorphism Cards - Dark Theme */
   .glass-card {
-    background: rgba(18, 22, 40, 0.7);
+    background: rgba(10, 12, 18, 0.9);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(108, 99, 255, 0.15);
     border-radius: 24px;
     transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  
+  body.light .glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(108, 99, 255, 0.2);
   }
   
   .glass-card:hover {
@@ -33,43 +45,20 @@
     box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(108, 99, 255, 0.1);
   }
   
-  /* Animated Gradient Border */
-  .gradient-border {
-    position: relative;
-    background: rgba(18, 22, 40, 0.6);
-    border-radius: 24px;
-  }
-  
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 24px;
-    padding: 1px;
-    background: linear-gradient(135deg, #6c63ff, #00d4aa, #ff6b6b, #6c63ff);
-    background-size: 300% 300%;
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: borderFlow 6s ease infinite;
-    opacity: 0.6;
-  }
-  
-  @keyframes borderFlow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  
-  /* Animated KPI Cards */
+  /* KPI Cards */
   .kpi-modern {
-    background: linear-gradient(135deg, rgba(108, 99, 255, 0.08), rgba(0, 212, 170, 0.04));
+    background: linear-gradient(135deg, rgba(10, 12, 18, 0.95), rgba(20, 22, 36, 0.95));
     border: 1px solid rgba(108, 99, 255, 0.2);
     border-radius: 28px;
     padding: 20px 24px;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+  }
+  
+  body.light .kpi-modern {
+    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(240,242,248,0.95));
+    border: 1px solid rgba(108, 99, 255, 0.3);
   }
   
   .kpi-modern::after {
@@ -85,12 +74,6 @@
   
   .kpi-modern:hover::after {
     left: 100%;
-  }
-  
-  .kpi-modern:hover {
-    transform: translateY(-2px);
-    border-color: rgba(108, 99, 255, 0.5);
-    box-shadow: 0 8px 32px rgba(108, 99, 255, 0.15);
   }
   
   .kpi-icon {
@@ -113,17 +96,22 @@
     background-clip: text;
   }
   
-  /* Chart Cards */
+  body.light .kpi-value {
+    background: linear-gradient(135deg, #1a1d2e, #6c63ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  /* Chart Containers */
   .chart-container {
-    background: rgba(18, 22, 40, 0.5);
+    background: rgba(10, 12, 18, 0.8);
     border-radius: 24px;
     padding: 20px;
     transition: all 0.3s ease;
   }
   
-  .chart-container:hover {
-    background: rgba(18, 22, 40, 0.7);
-    transform: scale(1.01);
+  body.light .chart-container {
+    background: rgba(255, 255, 255, 0.8);
   }
   
   .chart-title {
@@ -133,6 +121,10 @@
     letter-spacing: 2px;
     color: rgba(255,255,255,0.5);
     margin-bottom: 16px;
+  }
+  
+  body.light .chart-title {
+    color: rgba(0,0,0,0.5);
   }
   
   /* Modern Table */
@@ -152,22 +144,32 @@
     border-bottom: 1px solid rgba(108, 99, 255, 0.2);
   }
   
+  body.light .modern-table th {
+    color: rgba(0,0,0,0.5);
+    border-bottom: 1px solid rgba(108, 99, 255, 0.3);
+  }
+  
   .modern-table td {
     padding: 14px 16px;
     font-size: 13px;
     font-weight: 500;
     border-bottom: 1px solid rgba(255,255,255,0.05);
     transition: all 0.2s ease;
+    color: #e0e0e0;
+  }
+  
+  body.light .modern-table td {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    color: #1a1d2e;
   }
   
   .modern-table tr:hover td {
     background: rgba(108, 99, 255, 0.08);
-    transform: scale(1.01);
   }
   
   /* Navbar */
   .navbar-premium {
-    background: rgba(10, 12, 21, 0.8);
+    background: rgba(5, 5, 8, 0.95);
     backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(108, 99, 255, 0.2);
     padding: 16px 32px;
@@ -177,6 +179,11 @@
     position: sticky;
     top: 0;
     z-index: 100;
+  }
+  
+  body.light .navbar-premium {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid rgba(108, 99, 255, 0.3);
   }
   
   .logo {
@@ -199,6 +206,10 @@
     border-radius: 40px;
   }
   
+  body.light .nav-tab {
+    color: rgba(0,0,0,0.5);
+  }
+  
   .nav-tab:hover {
     color: #6c63ff;
     background: rgba(108, 99, 255, 0.1);
@@ -210,7 +221,7 @@
     border: 1px solid rgba(108, 99, 255, 0.3);
   }
   
-  /* Controls */
+  /* Controls - Dark Dropdowns Fixed */
   .controls-modern {
     display: flex;
     gap: 12px;
@@ -219,19 +230,49 @@
   }
   
   .select-modern {
-    background: rgba(18, 22, 40, 0.8);
+    background: #1a1d2e;
     border: 1px solid rgba(108, 99, 255, 0.3);
     border-radius: 40px;
     padding: 10px 20px;
-    color: white;
+    color: #ffffff;
     font-size: 13px;
     cursor: pointer;
     transition: all 0.2s;
   }
   
+  .select-modern option {
+    background: #1a1d2e;
+    color: #ffffff;
+  }
+  
+  body.light .select-modern {
+    background: #ffffff;
+    color: #1a1d2e;
+    border: 1px solid rgba(108, 99, 255, 0.5);
+  }
+  
+  body.light .select-modern option {
+    background: #ffffff;
+    color: #1a1d2e;
+  }
+  
   .select-modern:hover {
     border-color: #6c63ff;
     background: rgba(108, 99, 255, 0.1);
+  }
+  
+  body.light .select-modern:hover {
+    background: rgba(108, 99, 255, 0.05);
+  }
+  
+  input.select-modern {
+    background: #1a1d2e;
+    color: #ffffff;
+  }
+  
+  body.light input.select-modern {
+    background: #ffffff;
+    color: #1a1d2e;
   }
   
   .btn-modern {
@@ -263,6 +304,10 @@
     transition: all 0.3s;
   }
   
+  body.light .btn-outline {
+    color: rgba(0,0,0,0.8);
+  }
+  
   .btn-outline:hover {
     border-color: #6c63ff;
     background: rgba(108, 99, 255, 0.1);
@@ -280,14 +325,8 @@
   }
   
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   
   /* Grid layouts */
@@ -336,6 +375,8 @@
   
   .status-paid { background: rgba(0, 212, 170, 0.15); color: #00d4aa; }
   .status-pending { background: rgba(255, 201, 77, 0.15); color: #ffc94d; }
+  .status-followup { background: rgba(108, 99, 255, 0.15); color: #6c63ff; }
+  .status-disputed { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; }
   
   /* Setup panel */
   .setup-panel {
@@ -346,12 +387,17 @@
   
   .setup-panel input {
     width: 100%;
-    background: rgba(18, 22, 40, 0.8);
+    background: #1a1d2e;
     border: 1px solid rgba(108, 99, 255, 0.3);
     border-radius: 12px;
     padding: 14px 18px;
     color: white;
     margin-top: 8px;
+  }
+  
+  body.light .setup-panel input {
+    background: #ffffff;
+    color: #1a1d2e;
   }
   
   .toast {
@@ -369,6 +415,12 @@
   @keyframes slideIn {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
+  }
+  
+  /* Chart text colors */
+  canvas {
+    max-height: 300px;
+    width: 100%;
   }
 </style>
 </head>
@@ -415,7 +467,7 @@
     </div>
     <div class="glass-card" style="padding: 24px; overflow-x: auto;">
       <table class="modern-table">
-        <thead><tr><th>#</th><th>Customer</th><th>Amount Recovered</th><th>Transactions</th><th>Bank</th></tr></thead>
+        <thead><tr><th>#</th><th>Customer</th><th>Amount Recovered</th><th>Invoice #</th><th>Bank</th></tr></thead>
         <tbody id="rec-tbody"></tbody>
       </table>
     </div>
@@ -453,9 +505,10 @@
     <div style="display: flex; flex-direction: column; gap: 20px;">
       <div><label style="color: rgba(255,255,255,0.6);">Recovery CSV URL</label><input type="text" id="cfg-rec-url" class="select-modern" style="width: 100%; margin-top: 8px;"></div>
       <div><label style="color: rgba(255,255,255,0.6);">Outstanding CSV URL</label><input type="text" id="cfg-out-url" class="select-modern" style="width: 100%; margin-top: 8px;"></div>
-      <div><label style="color: rgba(255,255,255,0.6);">High Risk Before</label><input type="month" id="cfg-high-before" class="select-modern" style="margin-top: 8px;"></div>
-      <div><label style="color: rgba(255,255,255,0.6);">Medium Risk Before</label><input type="month" id="cfg-med-before" class="select-modern" style="margin-top: 8px;"></div>
-      <div><label style="color: rgba(255,255,255,0.6);">Currency</label><input type="text" id="cfg-currency" class="select-modern" style="margin-top: 8px;" value="AED"></div>
+      <div><label style="color: rgba(255,255,255,0.6);">High Risk Before (Month)</label><input type="month" id="cfg-high-before" class="select-modern" style="margin-top: 8px;"></div>
+      <div><label style="color: rgba(255,255,255,0.6);">Medium Risk Before (Month)</label><input type="month" id="cfg-med-before" class="select-modern" style="margin-top: 8px;"></div>
+      <div><label style="color: rgba(255,255,255,0.6);">Processing From (Month)</label><input type="month" id="cfg-proc-from" class="select-modern" style="margin-top: 8px;"></div>
+      <div><label style="color: rgba(255,255,255,0.6);">Currency Symbol</label><input type="text" id="cfg-currency" class="select-modern" style="margin-top: 8px;" value="AED"></div>
       <button class="btn-modern" onclick="saveConfig()">Save Settings</button>
     </div>
   </div>
@@ -472,23 +525,21 @@ let outstandingData = [];
 let barChart, donutChart, riskDonut, outBar;
 let cfg = {
   recUrl: '', outUrl: '',
-  highBefore: '2026-01', medBefore: '2026-03',
+  highBefore: '2026-01', medBefore: '2026-03', procFrom: '2026-03',
   topN: 10, currency: 'AED'
 };
 
 // ============================================================
-// 🔧 DATE PARSER - Fixed for "5-Feb-2026" format
+// DATE PARSER - Fixed for "5-Feb-2026" format
 // ============================================================
 function parseDate(str) {
   if (!str) return null;
   
   let s = String(str).trim();
   
-  // Month mapping
   const months = { 'jan':0, 'feb':1, 'mar':2, 'apr':3, 'may':4, 'jun':5,
                    'jul':6, 'aug':7, 'sep':8, 'oct':9, 'nov':10, 'dec':11 };
   
-  // Pattern: 5-Feb-2026 or 05-Feb-2026 or 5/Feb/2026
   let match = s.match(/(\d{1,2})[-\/](jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[-\/](\d{4})/i);
   if (match) {
     let day = parseInt(match[1]);
@@ -499,13 +550,11 @@ function parseDate(str) {
     }
   }
   
-  // Pattern: 2026-02-05 (YYYY-MM-DD)
   match = s.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
   if (match) {
     return new Date(parseInt(match[1]), parseInt(match[2])-1, parseInt(match[3]));
   }
   
-  // Pattern: 05/02/2026 (DD/MM/YYYY)
   match = s.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
   if (match) {
     return new Date(parseInt(match[3]), parseInt(match[2])-1, parseInt(match[1]));
@@ -522,6 +571,10 @@ function parseAmount(val) {
   return parseFloat(num) || 0;
 }
 
+function formatCurrency(amt) {
+  return cfg.currency + ' ' + Math.round(amt).toLocaleString();
+}
+
 // ============================================================
 // RENDER FUNCTIONS
 // ============================================================
@@ -529,35 +582,38 @@ function renderKPIs(data, containerId, options = {}) {
   const container = document.getElementById(containerId);
   if (!container) return;
   
-  const total = data.reduce((s, r) => s + parseAmount(r[options.amountField] || r['Amount Recovered'] || r['Dr']), 0);
+  const total = data.reduce((s, r) => s + parseAmount(r[options.amountField] || 0), 0);
   const count = data.length;
   const avg = count ? total / count : 0;
   const topCustomer = data.reduce((best, r) => {
-    const amt = parseAmount(r[options.amountField] || r['Amount Recovered'] || r['Dr']);
-    return amt > best.amt ? { name: r[options.nameField] || r['Client / Account Name'] || r['Customer Name'], amt } : best;
+    const amt = parseAmount(r[options.amountField] || 0);
+    return amt > best.amt ? { name: r[options.nameField] || 'Unknown', amt } : best;
   }, { name: '—', amt: 0 });
   
   container.innerHTML = `
     <div class="kpi-modern"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><div class="kpi-icon">💰</div><div style="margin-top: 16px;"><div class="kpi-value">${formatCurrency(total)}</div><div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">Total ${options.label || 'Recovered'}</div></div></div></div></div>
     <div class="kpi-modern"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><div class="kpi-icon">📋</div><div style="margin-top: 16px;"><div class="kpi-value">${count.toLocaleString()}</div><div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">Transactions</div></div></div></div></div>
-    <div class="kpi-modern"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><div class="kpi-icon">🏆</div><div style="margin-top: 16px;"><div class="kpi-value" style="font-size: 18px;">${topCustomer.name.substring(0, 20)}</div><div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">${formatCurrency(topCustomer.amt)}</div></div></div></div></div>
+    <div class="kpi-modern"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><div class="kpi-icon">🏆</div><div style="margin-top: 16px;"><div class="kpi-value" style="font-size: 18px;">${(topCustomer.name || '—').substring(0, 20)}</div><div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">${formatCurrency(topCustomer.amt)}</div></div></div></div></div>
     <div class="kpi-modern"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><div class="kpi-icon">📊</div><div style="margin-top: 16px;"><div class="kpi-value">${formatCurrency(avg)}</div><div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">Average per Transaction</div></div></div></div></div>
   `;
 }
 
-function getMonthYearOptions() {
-  const now = new Date();
-  const years = [2025, 2026];
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return { years, months };
-}
-
 function initRecovery() {
-  const { years, months } = getMonthYearOptions();
+  if (!recoveryData.length) return;
+  
+  const years = [...new Set(recoveryData.map(r => {
+    let d = parseDate(r['Recovery Date'] || r['DateFormated']);
+    return d ? d.getFullYear() : null;
+  }).filter(Boolean))].sort((a,b)=>b-a);
+  
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  
   let yearSelect = document.getElementById('rec-year');
   let monthSelect = document.getElementById('rec-month');
+  
   if (yearSelect) yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
-  if (monthSelect) monthSelect.innerHTML = months.map((m, i) => `<option value="${i+1}">${m}</option>`).join('');
+  if (monthSelect) monthSelect.innerHTML = monthNames.map((m, i) => `<option value="${i+1}">${m}</option>`).join('');
+  
   renderRecovery();
 }
 
@@ -600,14 +656,21 @@ function renderRecovery() {
   });
   
   let tbody = document.getElementById('rec-tbody');
-  tbody.innerHTML = sorted.map(([name, amt], i) => `<tr><td style="color: #6c63ff; font-weight: 700;">#${i+1}</td><td>${name}</td><td style="font-weight: 600;">${formatCurrency(amt)}</td><td>—</td><td>—</td></tr>`).join('');
+  tbody.innerHTML = sorted.map(([name, amt], i) => {
+    let sampleInvoice = filtered.find(r => r['Client / Account Name'] === name);
+    return `<tr><td style="color: #6c63ff; font-weight: 700;">#${i+1}</td><td style="font-weight: 500;">${name}</td><td style="font-weight: 600;">${formatCurrency(amt)}</td><td style="color: #aaa;">${sampleInvoice?.['Invoice #'] || '—'}</td><td style="color: #aaa;">${sampleInvoice?.['Bank'] || '—'}</td></tr>`;
+  }).join('');
 }
 
 function initOutstanding() {
+  if (!outstandingData.length) return;
+  
   let sales = [...new Set(outstandingData.map(r => r['Sales Person']).filter(Boolean))];
-  document.getElementById('out-sales').innerHTML = '<option value="">All Sales</option>' + sales.map(s => `<option>${s}</option>`).join('');
   let statuses = [...new Set(outstandingData.map(r => r['Status'] || r['Status / Remarks']).filter(Boolean))];
+  
+  document.getElementById('out-sales').innerHTML = '<option value="">All Sales</option>' + sales.map(s => `<option>${s}</option>`).join('');
   document.getElementById('out-status').innerHTML = '<option value="">All Status</option>' + statuses.map(s => `<option>${s}</option>`).join('');
+  
   renderOutstanding();
 }
 
@@ -669,37 +732,68 @@ function renderOutstanding() {
     let riskClass = risk === 'high' ? 'risk-high' : risk === 'medium' ? 'risk-medium' : 'risk-processing';
     let riskText = risk === 'high' ? '⚠️ High' : risk === 'medium' ? '🟡 Medium' : '🟢 Processing';
     let status = r['Status'] || r['Status / Remarks'] || '—';
-    let statusClass = status.toLowerCase().includes('paid') ? 'status-paid' : 'status-pending';
-    return `<tr><td style="font-weight: 500;">${r['Customer Name']||'—'}</td><td style="color: #aaa;">${r['Invoice #']||'—'}</td><td>${r['Invoice Date']||'—'}</td><td style="color: #aaa;">${r['LPO #']||'—'}</td><td style="font-weight: 600;">${formatCurrency(parseAmount(r['Dr']))}</td><td>${r['Sales Person']||'—'}</td><td><span class="risk-badge ${riskClass}">${riskText}</span></td><td><span class="status-badge ${statusClass}">${status}</span></td></tr>`;
+    let statusClass = status.toLowerCase().includes('paid') ? 'status-paid' : 
+                      status.toLowerCase().includes('follow') ? 'status-followup' :
+                      status.toLowerCase().includes('dispute') ? 'status-disputed' : 'status-pending';
+    return `<tr><td style="font-weight: 500;">${r['Customer Name']||'—'}</td><td style="color: #aaa;">${r['Invoice #']||'—'}</td><td style="color: #aaa;">${r['Invoice Date']||'—'}</td><td style="color: #aaa;">${r['LPO #']||'—'}</td><td style="font-weight: 600;">${formatCurrency(parseAmount(r['Dr']))}</td><td style="color: #aaa;">${r['Sales Person']||'—'}</td><td><span class="risk-badge ${riskClass}">${riskText}</span></td><td><span class="status-badge ${statusClass}">${status}</span></td></tr>`;
   }).join('');
-}
-
-function formatCurrency(amt) {
-  return cfg.currency + ' ' + Math.round(amt).toLocaleString();
 }
 
 // ============================================================
 // DATA LOADING
 // ============================================================
 function loadDemo() {
+  // Demo data with REAL values
   const demoRecovery = [];
   const demoOutstanding = [];
+  
+  const realCustomers = ['Al Futtaim Group', 'Emirates NBD', 'Mashreq Bank', 'ADNOC', 'Emaar Properties', 'Etisalat', 'DP World', 'Majid Al Futtaim'];
+  const realSales = ['Ahmed Al Mansoori', 'Sara Khan', 'Ravi Patel', 'Fatima Al Zaabi'];
+  const realStatuses = ['Paid', 'Pending', 'Follow Up', 'Disputed'];
+  
   for (let i = 1; i <= 50; i++) {
-    demoRecovery.push({ 'Client / Account Name': `Customer ${i}`, 'Amount Recovered': Math.random() * 50000 + 5000, 'Recovery Date': `${Math.floor(Math.random()*28)+1}-Feb-2026`, 'Bank': 'Sample Bank' });
-    demoOutstanding.push({ 'Customer Name': `Client ${i}`, 'Invoice #': `INV-${i}`, 'Invoice Date': `${Math.floor(Math.random()*28)+1}-Feb-2026`, 'LPO #': `LPO-${i}`, 'Dr': Math.random() * 30000 + 2000, 'Sales Person': 'Sales Rep', 'Status': 'Pending' });
+    let customer = realCustomers[i % realCustomers.length];
+    let amount = Math.floor(Math.random() * 50000 + 5000);
+    let day = Math.floor(Math.random() * 28) + 1;
+    let month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'][Math.floor(Math.random() * 6)];
+    
+    demoRecovery.push({ 
+      'Client / Account Name': customer, 
+      'Amount Recovered': amount, 
+      'Recovery Date': `${day}-${month}-2026`, 
+      'Invoice #': `INV-${10000 + i}`,
+      'Bank': ['ENBD', 'FAB', 'ADCB', 'Mashreq'][i % 4]
+    });
+    
+    demoOutstanding.push({ 
+      'Customer Name': customer, 
+      'Invoice #': `INV-${20000 + i}`, 
+      'Invoice Date': `${day}-${month}-2026`, 
+      'LPO #': `LPO-${5000 + i}`, 
+      'Dr': Math.floor(Math.random() * 30000 + 2000), 
+      'Sales Person': realSales[i % realSales.length], 
+      'Status': realStatuses[i % realStatuses.length],
+      'Status / Remarks': realStatuses[i % realStatuses.length]
+    });
   }
+  
   recoveryData = demoRecovery;
   outstandingData = demoOutstanding;
   initRecovery();
   initOutstanding();
   hidSetup();
+  showToast('Demo data loaded');
 }
 
 function loadFromURLs() {
   let recUrl = document.getElementById('recovery-url')?.value;
   let outUrl = document.getElementById('outstanding-url')?.value;
-  if (recUrl) Papa.parse(recUrl, { download: true, header: true, complete: (res) => { recoveryData = res.data; initRecovery(); hidSetup(); } });
-  if (outUrl) Papa.parse(outUrl, { download: true, header: true, complete: (res) => { outstandingData = res.data; initOutstanding(); } });
+  if (recUrl) {
+    Papa.parse(recUrl, { download: true, header: true, complete: (res) => { recoveryData = res.data; initRecovery(); hidSetup(); showToast('Recovery data loaded'); } });
+  }
+  if (outUrl) {
+    Papa.parse(outUrl, { download: true, header: true, complete: (res) => { outstandingData = res.data; initOutstanding(); showToast('Outstanding data loaded'); } });
+  }
 }
 
 function saveConfig() {
@@ -707,6 +801,7 @@ function saveConfig() {
   cfg.outUrl = document.getElementById('cfg-out-url')?.value || cfg.outUrl;
   cfg.highBefore = document.getElementById('cfg-high-before')?.value || cfg.highBefore;
   cfg.medBefore = document.getElementById('cfg-med-before')?.value || cfg.medBefore;
+  cfg.procFrom = document.getElementById('cfg-proc-from')?.value || cfg.procFrom;
   cfg.currency = document.getElementById('cfg-currency')?.value || cfg.currency;
   localStorage.setItem('fpCfg', JSON.stringify(cfg));
   renderRecovery();
@@ -725,7 +820,7 @@ function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(`page-${page}`).classList.add('active');
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
+  if (event && event.target) event.target.classList.add('active');
 }
 
 function showSetup() {
@@ -739,14 +834,26 @@ function hidSetup() {
 }
 
 function toggleTheme() {
-  document.body.style.background = document.body.style.background.includes('#0a0c15') ? 'linear-gradient(135deg, #f5f7ff 0%, #e8ecf8 100%)' : 'linear-gradient(135deg, #0a0c15 0%, #0f1222 100%)';
-  document.body.style.color = document.body.style.background.includes('#0a0c15') ? '#fff' : '#1a1d2e';
+  document.body.classList.toggle('light');
+  let isLight = document.body.classList.contains('light');
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  // Redraw charts to update colors
+  if (recoveryData.length) renderRecovery();
+  if (outstandingData.length) renderOutstanding();
 }
 
-// Load saved config
-try { let saved = localStorage.getItem('fpCfg'); if (saved) cfg = { ...cfg, ...JSON.parse(saved) }; } catch(e) {}
+// Load saved config and theme
+try { 
+  let saved = localStorage.getItem('fpCfg'); 
+  if (saved) cfg = { ...cfg, ...JSON.parse(saved) }; 
+} catch(e) {}
+
+let savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') document.body.classList.add('light');
+
 document.getElementById('cfg-high-before').value = cfg.highBefore;
 document.getElementById('cfg-med-before').value = cfg.medBefore;
+document.getElementById('cfg-proc-from').value = cfg.procFrom;
 document.getElementById('cfg-currency').value = cfg.currency;
 if (cfg.recUrl) document.getElementById('cfg-rec-url').value = cfg.recUrl;
 if (cfg.outUrl) document.getElementById('cfg-out-url').value = cfg.outUrl;
