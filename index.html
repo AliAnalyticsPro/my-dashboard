@@ -3,965 +3,755 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Finance Dashboard</title>
+<title>Finance Dashboard · Premium</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
-  /* ... KEEP YOUR EXISTING CSS HERE (same as before) ... */
-  :root {
-    --bg: #0f1117;
-    --surface: #181c27;
-    --surface2: #1e2334;
-    --border: rgba(255,255,255,0.07);
-    --text: #e8eaf0;
-    --muted: #7b82a0;
-    --accent: #6c63ff;
-    --accent2: #00d4aa;
-    --accent3: #ff6b6b;
-    --amber: #ffc94d;
-    --radius: 14px;
-    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #0a0c15 0%, #0f1222 100%);
+    color: #ffffff;
+    min-height: 100vh;
   }
-  .light {
-    --bg: #f0f2f8;
-    --surface: #ffffff;
-    --surface2: #f5f7ff;
-    --border: rgba(0,0,0,0.08);
-    --text: #1a1d2e;
-    --muted: #6b7090;
-    --accent: #5046e5;
-    --accent2: #00a88a;
-    --accent3: #e03e3e;
-    --amber: #d4900a;
-    --shadow: 0 4px 24px rgba(0,0,0,0.1);
+  
+  /* Modern Glassmorphism Cards */
+  .glass-card {
+    background: rgba(18, 22, 40, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(108, 99, 255, 0.15);
+    border-radius: 24px;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.3s, color 0.3s; }
-
-  .topnav {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 28px; background: var(--surface);
-    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
-    box-shadow: var(--shadow);
+  
+  .glass-card:hover {
+    border-color: rgba(108, 99, 255, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(108, 99, 255, 0.1);
   }
-  .brand { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
-  .brand span { color: var(--accent); }
-  .nav-tabs { display: flex; gap: 4px; }
+  
+  /* Animated Gradient Border */
+  .gradient-border {
+    position: relative;
+    background: rgba(18, 22, 40, 0.6);
+    border-radius: 24px;
+  }
+  
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    padding: 1px;
+    background: linear-gradient(135deg, #6c63ff, #00d4aa, #ff6b6b, #6c63ff);
+    background-size: 300% 300%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: borderFlow 6s ease infinite;
+    opacity: 0.6;
+  }
+  
+  @keyframes borderFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  /* Animated KPI Cards */
+  .kpi-modern {
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.08), rgba(0, 212, 170, 0.04));
+    border: 1px solid rgba(108, 99, 255, 0.2);
+    border-radius: 28px;
+    padding: 20px 24px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .kpi-modern::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(108, 99, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+  }
+  
+  .kpi-modern:hover::after {
+    left: 100%;
+  }
+  
+  .kpi-modern:hover {
+    transform: translateY(-2px);
+    border-color: rgba(108, 99, 255, 0.5);
+    box-shadow: 0 8px 32px rgba(108, 99, 255, 0.15);
+  }
+  
+  .kpi-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 212, 170, 0.1));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+  
+  .kpi-value {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, rgba(108, 99, 255, 0.8));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Chart Cards */
+  .chart-container {
+    background: rgba(18, 22, 40, 0.5);
+    border-radius: 24px;
+    padding: 20px;
+    transition: all 0.3s ease;
+  }
+  
+  .chart-container:hover {
+    background: rgba(18, 22, 40, 0.7);
+    transform: scale(1.01);
+  }
+  
+  .chart-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 16px;
+  }
+  
+  /* Modern Table */
+  .modern-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .modern-table th {
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.5);
+    border-bottom: 1px solid rgba(108, 99, 255, 0.2);
+  }
+  
+  .modern-table td {
+    padding: 14px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.2s ease;
+  }
+  
+  .modern-table tr:hover td {
+    background: rgba(108, 99, 255, 0.08);
+    transform: scale(1.01);
+  }
+  
+  /* Navbar */
+  .navbar-premium {
+    background: rgba(10, 12, 21, 0.8);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(108, 99, 255, 0.2);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .logo {
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #6c63ff, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
   .nav-tab {
-    padding: 7px 18px; border-radius: 8px; font-size: 13px; font-weight: 500;
-    cursor: pointer; border: none; background: transparent; color: var(--muted);
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 40px;
+  }
+  
+  .nav-tab:hover {
+    color: #6c63ff;
+    background: rgba(108, 99, 255, 0.1);
+  }
+  
+  .nav-tab.active {
+    color: #6c63ff;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 212, 170, 0.1));
+    border: 1px solid rgba(108, 99, 255, 0.3);
+  }
+  
+  /* Controls */
+  .controls-modern {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  
+  .select-modern {
+    background: rgba(18, 22, 40, 0.8);
+    border: 1px solid rgba(108, 99, 255, 0.3);
+    border-radius: 40px;
+    padding: 10px 20px;
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
     transition: all 0.2s;
   }
-  .nav-tab.active { background: var(--accent); color: #fff; }
-  .nav-tab:hover:not(.active) { background: var(--surface2); color: var(--text); }
-  .nav-right { display: flex; align-items: center; gap: 12px; }
-  .theme-btn {
-    width: 38px; height: 22px; border-radius: 11px; border: none; cursor: pointer;
-    background: var(--border); position: relative; transition: background 0.3s;
-    display: flex; align-items: center; padding: 2px;
+  
+  .select-modern:hover {
+    border-color: #6c63ff;
+    background: rgba(108, 99, 255, 0.1);
   }
-  .theme-knob {
-    width: 18px; height: 18px; border-radius: 50%; background: var(--accent);
-    transition: transform 0.3s; flex-shrink: 0;
+  
+  .btn-modern {
+    background: linear-gradient(135deg, #6c63ff, #5046e5);
+    border: none;
+    border-radius: 40px;
+    padding: 10px 24px;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
   }
-  .light .theme-knob { transform: translateX(16px); }
-  .theme-label { font-size: 12px; color: var(--muted); }
-
-  .page { display: none; padding: 24px 28px; }
-  .page.active { display: block; }
-
-  .controls {
-    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-    background: var(--surface); border-radius: var(--radius);
-    padding: 14px 18px; margin-bottom: 22px;
-    border: 1px solid var(--border);
+  
+  .btn-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(108, 99, 255, 0.3);
   }
-  .ctrl-group { display: flex; align-items: center; gap: 8px; }
-  .ctrl-label { font-size: 12px; color: var(--muted); font-weight: 500; }
-  select, input[type=number] {
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); border-radius: 8px; padding: 7px 12px;
-    font-size: 13px; cursor: pointer; outline: none;
-    transition: border-color 0.2s;
+  
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(108, 99, 255, 0.5);
+    border-radius: 40px;
+    padding: 10px 24px;
+    color: rgba(255,255,255,0.8);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
   }
-  select:focus, input:focus { border-color: var(--accent); }
-  input[type=number] { width: 70px; }
-  .btn {
-    padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
-    font-size: 13px; font-weight: 600; background: var(--accent); color: #fff;
-    transition: opacity 0.2s;
+  
+  .btn-outline:hover {
+    border-color: #6c63ff;
+    background: rgba(108, 99, 255, 0.1);
   }
-  .btn:hover { opacity: 0.85; }
-  .btn-ghost {
-    background: transparent; border: 1px solid var(--border); color: var(--text);
+  
+  /* Page transitions */
+  .page {
+    display: none;
+    padding: 32px;
+    animation: fadeInUp 0.5s ease;
   }
-
+  
+  .page.active {
+    display: block;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Grid layouts */
   .kpi-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 14px; margin-bottom: 22px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
   }
-  .kpi-card {
-    background: var(--surface); border-radius: var(--radius);
-    padding: 18px 20px; border: 1px solid var(--border);
-    position: relative; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;
-  }
-  .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-  .kpi-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    border-radius: var(--radius) var(--radius) 0 0;
-  }
-  .kpi-card.c1::before { background: var(--accent); }
-  .kpi-card.c2::before { background: var(--accent2); }
-  .kpi-card.c3::before { background: var(--amber); }
-  .kpi-card.c4::before { background: var(--accent3); }
-  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 8px; }
-  .kpi-value { font-size: 26px; font-weight: 700; letter-spacing: -1px; line-height: 1; }
-  .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
-  .kpi-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 28px; opacity: 0.12; }
-
+  
   .charts-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
   }
-  @media(max-width:768px) { .charts-grid { grid-template-columns: 1fr; } }
-  .chart-card {
-    background: var(--surface); border-radius: var(--radius); padding: 20px;
-    border: 1px solid var(--border);
+  
+  @media (max-width: 900px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .page { padding: 20px; }
+    .navbar-premium { padding: 12px 20px; }
   }
-  .chart-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 16px; }
-  .chart-wrap { position: relative; height: 220px; }
-
-  .table-card {
-    background: var(--surface); border-radius: var(--radius); padding: 20px;
-    border: 1px solid var(--border); margin-bottom: 22px;
+  
+  /* Risk badges */
+  .risk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 40px;
+    font-size: 11px;
+    font-weight: 600;
   }
-  .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .table-title { font-size: 14px; font-weight: 600; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; padding: 9px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 600; }
-  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--surface2); }
-  .rank { font-weight: 700; color: var(--accent); }
-  .amount-cell { font-weight: 600; font-variant-numeric: tabular-nums; }
-
-  .risk {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  
+  .risk-high { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.3); }
+  .risk-medium { background: rgba(255, 201, 77, 0.15); color: #ffc94d; border: 1px solid rgba(255, 201, 77, 0.3); }
+  .risk-processing { background: rgba(0, 212, 170, 0.15); color: #00d4aa; border: 1px solid rgba(0, 212, 170, 0.3); }
+  
+  .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 40px;
+    font-size: 11px;
+    font-weight: 600;
   }
-  .risk-high { background: rgba(255,107,107,0.15); color: var(--accent3); border: 1px solid rgba(255,107,107,0.3); }
-  .risk-medium { background: rgba(255,201,77,0.15); color: var(--amber); border: 1px solid rgba(255,201,77,0.3); }
-  .risk-processing { background: rgba(0,212,170,0.15); color: var(--accent2); border: 1px solid rgba(0,212,170,0.3); }
-  .risk-dot { width: 6px; height: 6px; border-radius: 50%; }
-  .risk-high .risk-dot { background: var(--accent3); }
-  .risk-medium .risk-dot { background: var(--amber); }
-  .risk-processing .risk-dot { background: var(--accent2); }
-
-  .status { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .status-paid { background: rgba(0,212,170,0.15); color: var(--accent2); }
-  .status-pending { background: rgba(255,201,77,0.15); color: var(--amber); }
-  .status-other { background: var(--surface2); color: var(--muted); }
-
-  .config-section { background: var(--surface); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); margin-bottom: 18px; }
-  .config-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
-  .config-desc { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
-  .config-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-  @media(max-width:600px) { .config-grid { grid-template-columns: 1fr; } }
-  .config-field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
-  .config-field input, .config-field select { width: 100%; }
-  .config-field input[type=color] { height: 38px; padding: 4px 8px; cursor: pointer; width: 100%; }
-  .config-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
-  .save-btn { margin-top: 16px; }
-  .saved-toast {
-    display: none; position: fixed; bottom: 24px; right: 24px;
-    background: var(--accent2); color: #fff; padding: 10px 20px; border-radius: 10px;
-    font-size: 13px; font-weight: 600; z-index: 999; animation: fadeup 0.3s ease;
-  }
-  @keyframes fadeup { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-
-  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
-  .empty-icon { font-size: 40px; margin-bottom: 12px; }
-  .empty h3 { font-size: 15px; margin-bottom: 6px; }
-  .empty p { font-size: 13px; }
-
+  
+  .status-paid { background: rgba(0, 212, 170, 0.15); color: #00d4aa; }
+  .status-pending { background: rgba(255, 201, 77, 0.15); color: #ffc94d; }
+  
+  /* Setup panel */
   .setup-panel {
-    background: var(--surface); border-radius: var(--radius); padding: 30px;
-    border: 1px solid var(--border); max-width: 680px; margin: 40px auto;
+    max-width: 600px;
+    margin: 60px auto;
     text-align: center;
   }
-  .setup-panel h2 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
-  .setup-panel p { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
-  .url-inputs { display: flex; flex-direction: column; gap: 12px; text-align: left; }
-  .url-inputs label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 4px; }
-  .url-inputs input { width: 100%; padding: 10px 14px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 13px; }
-  .steps { text-align: left; background: var(--surface2); border-radius: 10px; padding: 18px; margin-bottom: 24px; }
-  .steps h4 { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: var(--accent); }
-  .steps ol { padding-left: 18px; font-size: 13px; color: var(--muted); line-height: 2; }
-  .steps ol li strong { color: var(--text); }
-  .demo-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); margin-right: 8px; }
-
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  .kpi-card, .chart-card, .table-card { animation: fadeIn 0.4s ease both; }
-  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  
+  .setup-panel input {
+    width: 100%;
+    background: rgba(18, 22, 40, 0.8);
+    border: 1px solid rgba(108, 99, 255, 0.3);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: white;
+    margin-top: 8px;
+  }
+  
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: linear-gradient(135deg, #00d4aa, #6c63ff);
+    padding: 12px 24px;
+    border-radius: 40px;
+    font-weight: 600;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
 </style>
 </head>
 <body>
 
-<!-- Toast -->
-<div class="saved-toast" id="toast">✓ Settings saved</div>
-
-<!-- NAV -->
-<nav class="topnav">
-  <div class="brand">Finance<span>Pulse</span></div>
-  <div class="nav-tabs">
+<nav class="navbar-premium">
+  <div class="logo">Finance<span style="color:#6c63ff">Pulse</span></div>
+  <div style="display: flex; gap: 8px;">
     <button class="nav-tab active" onclick="showPage('recovery')">Recovery</button>
     <button class="nav-tab" onclick="showPage('outstanding')">Outstanding</button>
-    <button class="nav-tab" onclick="showPage('config')">⚙ Config</button>
+    <button class="nav-tab" onclick="showPage('config')">Config</button>
   </div>
-  <div class="nav-right">
-    <span class="theme-label" id="theme-label">Dark</span>
-    <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">
-      <span class="theme-knob"></span>
-    </button>
-  </div>
+  <button class="btn-outline" onclick="toggleTheme()" style="padding: 6px 16px;">🌓 Theme</button>
 </nav>
 
-<!-- RECOVERY PAGE -->
+<!-- Recovery Page -->
 <div class="page active" id="page-recovery">
-  <div id="setup-recovery" style="display:none">
-    <div class="setup-panel">
-      <h2>Connect your Google Sheet</h2>
-      <p>Paste the published CSV URLs for both tabs below.<br>Once connected, your dashboard will always show live data.</p>
-      <div class="steps">
-        <h4>How to get your CSV URL from Google Sheets</h4>
-        <ol>
-          <li>Open your Google Sheet</li>
-          <li>Click <strong>File → Share → Publish to web</strong></li>
-          <li>Choose the tab (Recovery or Outstanding), select <strong>CSV</strong> format</li>
-          <li>Click <strong>Publish</strong> and copy the URL</li>
-          <li>Paste it below and click Load</li>
-        </ol>
-      </div>
-      <div class="url-inputs">
-        <div>
-          <label>Recovery Tab — CSV URL</label>
-          <input type="text" id="recovery-url" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=...&single=true&output=csv"/>
-        </div>
-        <div style="margin-top:10px">
-          <label>Outstanding Tab — CSV URL</label>
-          <input type="text" id="outstanding-url" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=...&single=true&output=csv"/>
-        </div>
-      </div>
-      <div style="margin-top:20px;display:flex;gap:10px;justify-content:center">
-        <button class="btn demo-btn" onclick="loadDemo()">Load Demo Data</button>
-        <button class="btn" onclick="loadFromURLs()">Load My Data</button>
+  <div id="setup-recovery" style="display: none;">
+    <div class="setup-panel glass-card" style="padding: 48px;">
+      <h2 style="margin-bottom: 16px;">📊 Connect Your Data</h2>
+      <p style="color: rgba(255,255,255,0.6); margin-bottom: 24px;">Paste your Google Sheets CSV URLs below</p>
+      <input type="text" id="recovery-url" placeholder="Recovery Tab CSV URL">
+      <input type="text" id="outstanding-url" placeholder="Outstanding Tab CSV URL" style="margin-top: 16px;">
+      <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <button class="btn-modern" onclick="loadFromURLs()">Load Data</button>
+        <button class="btn-outline" onclick="loadDemo()">Load Demo</button>
       </div>
     </div>
   </div>
 
   <div id="recovery-dash">
-    <div class="controls">
-      <div class="ctrl-group">
-        <span class="ctrl-label">Month</span>
-        <select id="rec-month"></select>
-      </div>
-      <div class="ctrl-group">
-        <span class="ctrl-label">Year</span>
-        <select id="rec-year"></select>
-      </div>
-      <div class="ctrl-group">
-        <span class="ctrl-label">Top Customers</span>
-        <input type="number" id="rec-topn" min="1" max="50" value="10"/>
-      </div>
-      <button class="btn" onclick="renderRecovery()">Apply</button>
-      <button class="btn btn-ghost" onclick="showSetup()">Change Data Source</button>
+    <div class="controls-modern">
+      <select id="rec-month" class="select-modern"></select>
+      <select id="rec-year" class="select-modern"></select>
+      <input type="number" id="rec-topn" class="select-modern" style="width: 100px;" value="10">
+      <button class="btn-modern" onclick="renderRecovery()">Apply</button>
+      <button class="btn-outline" onclick="showSetup()">Change Source</button>
     </div>
 
-    <div class="kpi-grid">
-      <div class="kpi-card c1">
-        <div class="kpi-label">Total Recovered</div>
-        <div class="kpi-value" id="kpi-total">—</div>
-        <div class="kpi-sub" id="kpi-period">—</div>
-        <div class="kpi-icon">💰</div>
-      </div>
-      <div class="kpi-card c2">
-        <div class="kpi-label">Transactions</div>
-        <div class="kpi-value" id="kpi-count">—</div>
-        <div class="kpi-sub">Payments received</div>
-        <div class="kpi-icon">📋</div>
-      </div>
-      <div class="kpi-card c3">
-        <div class="kpi-label">Top Customer</div>
-        <div class="kpi-value" id="kpi-top-name" style="font-size:15px;margin-top:4px">—</div>
-        <div class="kpi-sub" id="kpi-top-amt">—</div>
-        <div class="kpi-icon">🏆</div>
-      </div>
-      <div class="kpi-card c4">
-        <div class="kpi-label">Avg per Transaction</div>
-        <div class="kpi-value" id="kpi-avg">—</div>
-        <div class="kpi-sub">Average recovery</div>
-        <div class="kpi-icon">📊</div>
-      </div>
-    </div>
-
+    <div class="kpi-grid" id="recovery-kpis"></div>
     <div class="charts-grid">
-      <div class="chart-card">
-        <div class="chart-title">Top Customers — Recovered Amount</div>
-        <div class="chart-wrap"><canvas id="barChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">Recovery Share by Customer</div>
-        <div class="chart-wrap"><canvas id="donutChart"></canvas></div>
-      </div>
+      <div class="chart-container"><div class="chart-title">📊 TOP CUSTOMERS — RECOVERED</div><canvas id="barChart"></canvas></div>
+      <div class="chart-container"><div class="chart-title">🥧 RECOVERY SHARE</div><canvas id="donutChart"></canvas></div>
     </div>
-
-    <div class="table-card">
-      <div class="table-header">
-        <span class="table-title" id="table-heading">Top Customers</span>
-      </div>
-      <div style="overflow-x:auto">
-        <table>
-          <thead>
-            <tr><th>#</th><th>Customer / Account</th><th>Amount Recovered</th><th>Transactions</th><th>Bank</th></tr>
-          </thead>
-          <tbody id="rec-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- OUTSTANDING PAGE -->
-<div class="page" id="page-outstanding">
-  <div class="controls">
-    <div class="ctrl-group">
-      <span class="ctrl-label">Search</span>
-      <input type="text" id="out-search" placeholder="Customer or invoice..." style="width:200px" oninput="renderOutstanding()"/>
-    </div>
-    <div class="ctrl-group">
-      <span class="ctrl-label">Risk</span>
-      <select id="out-risk" onchange="renderOutstanding()">
-        <option value="">All Risks</option>
-        <option value="high">High Risk</option>
-        <option value="medium">Medium Risk</option>
-        <option value="processing">Processing</option>
-      </select>
-    </div>
-    <div class="ctrl-group">
-      <span class="ctrl-label">Sales Person</span>
-      <select id="out-sales" onchange="renderOutstanding()"><option value="">All</option></select>
-    </div>
-    <div class="ctrl-group">
-      <span class="ctrl-label">Status</span>
-      <select id="out-status" onchange="renderOutstanding()"><option value="">All</option></select>
-    </div>
-  </div>
-
-  <div class="kpi-grid">
-    <div class="kpi-card c1">
-      <div class="kpi-label">Total Outstanding (Dr)</div>
-      <div class="kpi-value" id="out-kpi-total">—</div>
-      <div class="kpi-sub">All invoices</div>
-      <div class="kpi-icon">📄</div>
-    </div>
-    <div class="kpi-card c4">
-      <div class="kpi-label">High Risk</div>
-      <div class="kpi-value" id="out-kpi-high">—</div>
-      <div class="kpi-sub" id="out-kpi-high-label">Before 2026</div>
-      <div class="kpi-icon">⚠️</div>
-    </div>
-    <div class="kpi-card c3">
-      <div class="kpi-label">Medium Risk</div>
-      <div class="kpi-value" id="out-kpi-med">—</div>
-      <div class="kpi-sub" id="out-kpi-med-label">Jan–Feb 2026</div>
-      <div class="kpi-icon">🔔</div>
-    </div>
-    <div class="kpi-card c2">
-      <div class="kpi-label">Processing</div>
-      <div class="kpi-value" id="out-kpi-proc">—</div>
-      <div class="kpi-sub" id="out-kpi-proc-label">Mar 2026 onwards</div>
-      <div class="kpi-icon">🔄</div>
-    </div>
-  </div>
-
-  <div class="charts-grid">
-    <div class="chart-card">
-      <div class="chart-title">Outstanding by Risk Level</div>
-      <div class="chart-wrap"><canvas id="riskDonut"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">Top 10 Outstanding Customers (Dr)</div>
-      <div class="chart-wrap"><canvas id="outBar"></canvas></div>
-    </div>
-  </div>
-
-  <div class="table-card">
-    <div class="table-header">
-      <span class="table-title">Outstanding Invoices</span>
-      <span id="out-count" style="font-size:13px;color:var(--muted)"></span>
-    </div>
-    <div style="overflow-x:auto">
-      <table>
-        <thead>
-          <tr><th>Customer</th><th>Invoice #</th><th>Invoice Date</th><th>LPO #</th><th>Dr Amount</th><th>Sales Person</th><th>Risk</th><th>Status</th></tr>
-        </thead>
-        <tbody id="out-tbody"></tbody>
+    <div class="glass-card" style="padding: 24px; overflow-x: auto;">
+      <table class="modern-table">
+        <thead><tr><th>#</th><th>Customer</th><th>Amount Recovered</th><th>Transactions</th><th>Bank</th></tr></thead>
+        <tbody id="rec-tbody"></tbody>
       </table>
     </div>
   </div>
 </div>
 
-<!-- CONFIG PAGE -->
-<div class="page" id="page-config">
-  <div class="config-section">
-    <div class="config-title">Data Source URLs</div>
-    <div class="config-desc">Update your Google Sheets CSV links here. Change happens immediately after saving.</div>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="config-field">
-        <label>Recovery Tab CSV URL</label>
-        <input type="text" id="cfg-rec-url" placeholder="Paste Google Sheets CSV URL"/>
-      </div>
-      <div class="config-field">
-        <label>Outstanding Tab CSV URL</label>
-        <input type="text" id="cfg-out-url" placeholder="Paste Google Sheets CSV URL"/>
-      </div>
-    </div>
-    <button class="btn save-btn" onclick="saveURLs()">Save & Reload Data</button>
+<!-- Outstanding Page -->
+<div class="page" id="page-outstanding">
+  <div class="controls-modern">
+    <input type="text" id="out-search" class="select-modern" placeholder="Search customer..." style="width: 200px;" oninput="renderOutstanding()">
+    <select id="out-risk" class="select-modern" onchange="renderOutstanding()">
+      <option value="">All Risks</option><option value="high">⚠️ High Risk</option><option value="medium">🟡 Medium Risk</option><option value="processing">🟢 Processing</option>
+    </select>
+    <select id="out-sales" class="select-modern" onchange="renderOutstanding()"></select>
+    <select id="out-status" class="select-modern" onchange="renderOutstanding()"></select>
   </div>
 
-  <div class="config-section">
-    <div class="config-title">Risk Label Configuration</div>
-    <div class="config-desc">Set the invoice date cutoffs that define each risk category. Based on Invoice Date column.</div>
-    <div class="config-grid">
-      <div class="config-field">
-        <label>🔴 High Risk — invoices before</label>
-        <input type="month" id="cfg-high-before" value="2026-01"/>
-      </div>
-      <div class="config-field">
-        <label>🟡 Medium Risk — invoices before</label>
-        <input type="month" id="cfg-med-before" value="2026-03"/>
-      </div>
-      <div class="config-field">
-        <label>🟢 Processing — invoices from</label>
-        <input type="month" id="cfg-proc-from" value="2026-03"/>
-      </div>
-    </div>
-    <button class="btn save-btn" onclick="saveConfig()">Save Configuration</button>
+  <div class="kpi-grid" id="outstanding-kpis"></div>
+  <div class="charts-grid">
+    <div class="chart-container"><div class="chart-title">⚠️ RISK BREAKDOWN</div><canvas id="riskDonut"></canvas></div>
+    <div class="chart-container"><div class="chart-title">🏆 TOP 10 CUSTOMERS (DR)</div><canvas id="outBar"></canvas></div>
   </div>
-
-  <div class="config-section">
-    <div class="config-title">Dashboard Settings</div>
-    <div class="config-desc">Customize how the dashboard displays data.</div>
-    <div class="config-grid">
-      <div class="config-field">
-        <label>Default Top N Customers (Recovery)</label>
-        <input type="number" id="cfg-topn" min="1" max="50" value="10"/>
-      </div>
-      <div class="config-field">
-        <label>Currency Symbol</label>
-        <input type="text" id="cfg-currency" value="AED" style="max-width:100px"/>
-      </div>
-      <div class="config-field">
-        <label>Default Theme</label>
-        <select id="cfg-theme">
-          <option value="dark">Dark</option>
-          <option value="light">Light</option>
-        </select>
-      </div>
-    </div>
-    <button class="btn save-btn" onclick="saveConfig()">Save Settings</button>
+  <div class="glass-card" style="padding: 24px; overflow-x: auto;">
+    <table class="modern-table">
+      <thead><tr><th>Customer</th><th>Invoice #</th><th>Date</th><th>LPO #</th><th>Dr Amount</th><th>Sales Person</th><th>Risk</th><th>Status</th></tr></thead>
+      <tbody id="out-tbody"></tbody>
+    </table>
   </div>
 </div>
 
+<!-- Config Page -->
+<div class="page" id="page-config">
+  <div class="glass-card" style="padding: 32px; max-width: 800px; margin: 0 auto;">
+    <h3 style="margin-bottom: 24px;">⚙ Dashboard Settings</h3>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div><label style="color: rgba(255,255,255,0.6);">Recovery CSV URL</label><input type="text" id="cfg-rec-url" class="select-modern" style="width: 100%; margin-top: 8px;"></div>
+      <div><label style="color: rgba(255,255,255,0.6);">Outstanding CSV URL</label><input type="text" id="cfg-out-url" class="select-modern" style="width: 100%; margin-top: 8px;"></div>
+      <div><label style="color: rgba(255,255,255,0.6);">High Risk Before</label><input type="month" id="cfg-high-before" class="select-modern" style="margin-top: 8px;"></div>
+      <div><label style="color: rgba(255,255,255,0.6);">Medium Risk Before</label><input type="month" id="cfg-med-before" class="select-modern" style="margin-top: 8px;"></div>
+      <div><label style="color: rgba(255,255,255,0.6);">Currency</label><input type="text" id="cfg-currency" class="select-modern" style="margin-top: 8px;" value="AED"></div>
+      <button class="btn-modern" onclick="saveConfig()">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" style="display: none;">✓ Saved</div>
+
 <script>
-// ─── STATE ───────────────────────────────────────────────────────────────────
+// ============================================================
+// STATE & DATA
+// ============================================================
 let recoveryData = [];
 let outstandingData = [];
-let barChartInst = null, donutChartInst = null, riskDonutInst = null, outBarInst = null;
+let barChart, donutChart, riskDonut, outBar;
 let cfg = {
   recUrl: '', outUrl: '',
-  highBefore: '2026-01', medBefore: '2026-03', procFrom: '2026-03',
-  topN: 10, currency: 'AED', theme: 'dark'
+  highBefore: '2026-01', medBefore: '2026-03',
+  topN: 10, currency: 'AED'
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 🔧 FIX: DATE PARSER for "5-Feb-2026" format (Month names)
-// ═══════════════════════════════════════════════════════════════════════════
-function parseDateFromString(rawDate) {
-  if (!rawDate) return null;
+// ============================================================
+// 🔧 DATE PARSER - Fixed for "5-Feb-2026" format
+// ============================================================
+function parseDate(str) {
+  if (!str) return null;
   
-  let dateStr = rawDate.toString().trim();
+  let s = String(str).trim();
   
-  // Month name mapping
-  let monthNames = {
-    'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5,
-    'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11
-  };
+  // Month mapping
+  const months = { 'jan':0, 'feb':1, 'mar':2, 'apr':3, 'may':4, 'jun':5,
+                   'jul':6, 'aug':7, 'sep':8, 'oct':9, 'nov':10, 'dec':11 };
   
-  // Handle "5-Feb-2026" or "05-Feb-2026" or "5/Feb/2026"
-  let monthPattern = /(\d{1,2})[-\/](jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[-\/](\d{4})/i;
-  let match = dateStr.match(monthPattern);
-  
+  // Pattern: 5-Feb-2026 or 05-Feb-2026 or 5/Feb/2026
+  let match = s.match(/(\d{1,2})[-\/](jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[-\/](\d{4})/i);
   if (match) {
     let day = parseInt(match[1]);
-    let month = monthNames[match[2].toLowerCase()];
+    let month = months[match[2].toLowerCase()];
     let year = parseInt(match[3]);
     if (!isNaN(day) && month !== undefined && !isNaN(year)) {
       return new Date(year, month, day);
     }
   }
   
-  // Handle "2026-02-05" format (YYYY-MM-DD)
-  let ymdPattern = /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/;
-  let ymdMatch = dateStr.match(ymdPattern);
-  if (ymdMatch) {
-    return new Date(parseInt(ymdMatch[1]), parseInt(ymdMatch[2]) - 1, parseInt(ymdMatch[3]));
-  }
-  
-  // Handle "05/02/2026" format (DD/MM/YYYY)
-  let dmyPattern = /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/;
-  let dmyMatch = dateStr.match(dmyPattern);
-  if (dmyMatch) {
-    return new Date(parseInt(dmyMatch[3]), parseInt(dmyMatch[2]) - 1, parseInt(dmyMatch[1]));
-  }
-  
-  // Try standard Date parsing
-  let d = new Date(dateStr);
-  if (!isNaN(d)) return d;
-  
-  return null;
-}
-
-function parseRecoveryDate(r) {
-  let raw = r['Recovery Date'] || r['DateFormated'] || r['Invoice Date'] || '';
-  return parseDateFromString(raw);
-}
-
-function parseOutstandingDate(r) {
-  let raw = r['Invoice Date'] || '';
-  return parseDateFromString(raw);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 🔧 FIX: AMOUNT PARSER - Handles commas in numbers like "44,625.00"
-// ═══════════════════════════════════════════════════════════════════════════
-function parseAmount(value) {
-  if (!value) return 0;
-  if (typeof value === 'number') return value;
-  
-  let str = String(value).replace(/,/g, '').replace(/AED\s*/gi, '').replace(/\$/g, '');
-  let match = str.match(/[\d.]+/);
+  // Pattern: 2026-02-05 (YYYY-MM-DD)
+  match = s.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
   if (match) {
-    return parseFloat(match[0]) || 0;
+    return new Date(parseInt(match[1]), parseInt(match[2])-1, parseInt(match[3]));
   }
-  return 0;
+  
+  // Pattern: 05/02/2026 (DD/MM/YYYY)
+  match = s.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+  if (match) {
+    return new Date(parseInt(match[3]), parseInt(match[2])-1, parseInt(match[1]));
+  }
+  
+  let d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
 }
 
-// ─── CONFIG ───────────────────────────────────────────────────────────────────
-function loadConfig() {
-  try {
-    const s = localStorage.getItem('fpCfg');
-    if (s) cfg = { ...cfg, ...JSON.parse(s) };
-  } catch(e) {}
+function parseAmount(val) {
+  if (!val) return 0;
+  if (typeof val === 'number') return val;
+  let num = String(val).replace(/,/g, '').replace(/[^0-9.-]/g, '');
+  return parseFloat(num) || 0;
 }
-function saveConfig() {
-  cfg.highBefore = document.getElementById('cfg-high-before').value;
-  cfg.medBefore  = document.getElementById('cfg-med-before').value;
-  cfg.procFrom   = document.getElementById('cfg-proc-from').value;
-  cfg.topN       = parseInt(document.getElementById('cfg-topn').value) || 10;
-  cfg.currency   = document.getElementById('cfg-currency').value || 'AED';
-  cfg.theme      = document.getElementById('cfg-theme').value;
-  localStorage.setItem('fpCfg', JSON.stringify(cfg));
-  document.getElementById('rec-topn').value = cfg.topN;
-  updateRiskLabels();
+
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
+function renderKPIs(data, containerId, options = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  const total = data.reduce((s, r) => s + parseAmount(r[options.amountField] || r['Amount Recovered'] || r['Dr']), 0);
+  const count = data.length;
+  const avg = count ? total / count : 0;
+  const topCustomer = data.reduce((best, r) => {
+    const amt = parseAmount(r[options.amountField] || r['Amount Recovered'] || r['Dr']);
+    return amt > best.amt ? { name: r[options.nameField] || r['Client / Account Name'] || r['Customer Name'], amt } : best;
+  }, { name: '—', amt: 0 });
+  
+  container.innerHTML = `
+    <div class="kpi-modern"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><div class="kpi-icon">💰</div><div style="margin-top: 16px;"><div class="kpi-value">${formatCurrency(total)}</div><div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">Total ${options.label || 'Recovered'}</div></div></div></div></div>
+    <div class="kpi-modern"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><div class="kpi-icon">📋</div><div style="margin-top: 16px;"><div class="kpi-value">${count.toLocaleString()}</div><div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">Transactions</div></div></div></div></div>
+    <div class="kpi-modern"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><div class="kpi-icon">🏆</div><div style="margin-top: 16px;"><div class="kpi-value" style="font-size: 18px;">${topCustomer.name.substring(0, 20)}</div><div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">${formatCurrency(topCustomer.amt)}</div></div></div></div></div>
+    <div class="kpi-modern"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><div class="kpi-icon">📊</div><div style="margin-top: 16px;"><div class="kpi-value">${formatCurrency(avg)}</div><div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">Average per Transaction</div></div></div></div></div>
+  `;
+}
+
+function getMonthYearOptions() {
+  const now = new Date();
+  const years = [2025, 2026];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return { years, months };
+}
+
+function initRecovery() {
+  const { years, months } = getMonthYearOptions();
+  let yearSelect = document.getElementById('rec-year');
+  let monthSelect = document.getElementById('rec-month');
+  if (yearSelect) yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+  if (monthSelect) monthSelect.innerHTML = months.map((m, i) => `<option value="${i+1}">${m}</option>`).join('');
   renderRecovery();
+}
+
+function renderRecovery() {
+  if (!recoveryData.length) return;
+  
+  const month = parseInt(document.getElementById('rec-month')?.value || new Date().getMonth()+1);
+  const year = parseInt(document.getElementById('rec-year')?.value || new Date().getFullYear());
+  const topN = parseInt(document.getElementById('rec-topn')?.value || 10);
+  
+  const filtered = recoveryData.filter(r => {
+    const d = parseDate(r['Recovery Date'] || r['DateFormated']);
+    return d && d.getMonth()+1 === month && d.getFullYear() === year;
+  });
+  
+  renderKPIs(filtered, 'recovery-kpis', { amountField: 'Amount Recovered', nameField: 'Client / Account Name', label: 'Recovered' });
+  
+  const customerMap = new Map();
+  filtered.forEach(r => {
+    let name = r['Client / Account Name'] || 'Unknown';
+    let amt = parseAmount(r['Amount Recovered']);
+    customerMap.set(name, (customerMap.get(name) || 0) + amt);
+  });
+  
+  const sorted = [...customerMap.entries()].sort((a,b) => b[1] - a[1]).slice(0, topN);
+  const colors = ['#6c63ff', '#00d4aa', '#ffc94d', '#ff6b6b', '#4ecdc4', '#a29bfe', '#55efc4', '#fdcb6e'];
+  
+  if (barChart) barChart.destroy();
+  barChart = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: { labels: sorted.map(s => s[0].length > 20 ? s[0].substring(0,17)+'…' : s[0]), datasets: [{ data: sorted.map(s => s[1]), backgroundColor: colors, borderRadius: 12, barPercentage: 0.6 }] },
+    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `${formatCurrency(ctx.raw)}` } } }, scales: { x: { ticks: { color: '#aaa' }, grid: { display: false } }, y: { ticks: { color: '#aaa', callback: v => formatCurrency(v) } } } }
+  });
+  
+  if (donutChart) donutChart.destroy();
+  donutChart = new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: { labels: sorted.map(s => s[0].substring(0, 20)), datasets: [{ data: sorted.map(s => s[1]), backgroundColor: colors, borderWidth: 0, hoverOffset: 8 }] },
+    options: { responsive: true, maintainAspectRatio: true, cutout: '60%', plugins: { legend: { position: 'right', labels: { color: '#aaa', font: { size: 11 } } }, tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatCurrency(ctx.raw)}` } } } }
+  });
+  
+  let tbody = document.getElementById('rec-tbody');
+  tbody.innerHTML = sorted.map(([name, amt], i) => `<tr><td style="color: #6c63ff; font-weight: 700;">#${i+1}</td><td>${name}</td><td style="font-weight: 600;">${formatCurrency(amt)}</td><td>—</td><td>—</td></tr>`).join('');
+}
+
+function initOutstanding() {
+  let sales = [...new Set(outstandingData.map(r => r['Sales Person']).filter(Boolean))];
+  document.getElementById('out-sales').innerHTML = '<option value="">All Sales</option>' + sales.map(s => `<option>${s}</option>`).join('');
+  let statuses = [...new Set(outstandingData.map(r => r['Status'] || r['Status / Remarks']).filter(Boolean))];
+  document.getElementById('out-status').innerHTML = '<option value="">All Status</option>' + statuses.map(s => `<option>${s}</option>`).join('');
   renderOutstanding();
-  showToast();
-}
-function saveURLs() {
-  cfg.recUrl = document.getElementById('cfg-rec-url').value.trim();
-  cfg.outUrl = document.getElementById('cfg-out-url').value.trim();
-  localStorage.setItem('fpCfg', JSON.stringify(cfg));
-  loadFromURLs();
-  showToast();
-}
-function populateConfigFields() {
-  document.getElementById('cfg-high-before').value = cfg.highBefore;
-  document.getElementById('cfg-med-before').value  = cfg.medBefore;
-  document.getElementById('cfg-proc-from').value   = cfg.procFrom;
-  document.getElementById('cfg-topn').value        = cfg.topN;
-  document.getElementById('cfg-currency').value    = cfg.currency;
-  document.getElementById('cfg-theme').value       = cfg.theme;
-  if (cfg.recUrl) document.getElementById('cfg-rec-url').value = cfg.recUrl;
-  if (cfg.outUrl) document.getElementById('cfg-out-url').value = cfg.outUrl;
 }
 
-// ─── THEME ────────────────────────────────────────────────────────────────────
-let isDark = true;
-function applyTheme() {
-  isDark = cfg.theme !== 'light';
-  document.body.classList.toggle('light', !isDark);
-  document.getElementById('theme-label').textContent = isDark ? 'Dark' : 'Light';
-  redrawCharts();
-}
-function toggleTheme() {
-  isDark = !isDark;
-  document.body.classList.toggle('light', !isDark);
-  document.getElementById('theme-label').textContent = isDark ? 'Dark' : 'Light';
-  cfg.theme = isDark ? 'dark' : 'light';
-  localStorage.setItem('fpCfg', JSON.stringify(cfg));
-  redrawCharts();
+function getRisk(invoiceDate) {
+  let d = parseDate(invoiceDate);
+  if (!d) return 'processing';
+  let ym = d.getFullYear() * 100 + (d.getMonth()+1);
+  let highCut = parseInt(cfg.highBefore.replace('-', ''));
+  let medCut = parseInt(cfg.medBefore.replace('-', ''));
+  if (ym < highCut) return 'high';
+  if (ym < medCut) return 'medium';
+  return 'processing';
 }
 
-// ─── NAVIGATION ───────────────────────────────────────────────────────────────
-function showPage(p) {
-  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
-  document.getElementById('page-' + p).classList.add('active');
-  if (event && event.target) event.target.classList.add('active');
-}
-function showSetup() {
-  document.getElementById('setup-recovery').style.display = '';
-  document.getElementById('recovery-dash').style.display = 'none';
-}
-function hidSetup() {
-  document.getElementById('setup-recovery').style.display = 'none';
-  document.getElementById('recovery-dash').style.display = '';
+function renderOutstanding() {
+  if (!outstandingData.length) return;
+  
+  let search = (document.getElementById('out-search')?.value || '').toLowerCase();
+  let riskFilter = document.getElementById('out-risk')?.value || '';
+  let salesFilter = document.getElementById('out-sales')?.value || '';
+  let statusFilter = document.getElementById('out-status')?.value || '';
+  
+  let filtered = outstandingData.filter(r => {
+    let name = (r['Customer Name'] || '').toLowerCase();
+    let inv = (r['Invoice #'] || '').toLowerCase();
+    if (search && !name.includes(search) && !inv.includes(search)) return false;
+    let risk = getRisk(r['Invoice Date']);
+    if (riskFilter && risk !== riskFilter) return false;
+    if (salesFilter && r['Sales Person'] !== salesFilter) return false;
+    let st = r['Status'] || r['Status / Remarks'] || '';
+    if (statusFilter && st !== statusFilter) return false;
+    return true;
+  });
+  
+  renderKPIs(filtered, 'outstanding-kpis', { amountField: 'Dr', nameField: 'Customer Name', label: 'Outstanding' });
+  
+  let riskData = { high: 0, medium: 0, processing: 0 };
+  filtered.forEach(r => { let amt = parseAmount(r['Dr']); riskData[getRisk(r['Invoice Date'])] += amt; });
+  
+  if (riskDonut) riskDonut.destroy();
+  riskDonut = new Chart(document.getElementById('riskDonut'), {
+    type: 'doughnut', data: { labels: ['High Risk', 'Medium Risk', 'Processing'], datasets: [{ data: [riskData.high, riskData.medium, riskData.processing], backgroundColor: ['#ff6b6b', '#ffc94d', '#00d4aa'], borderWidth: 0 }] },
+    options: { responsive: true, maintainAspectRatio: true, cutout: '60%', plugins: { legend: { position: 'right', labels: { color: '#aaa' } }, tooltip: { callbacks: { label: (ctx) => `${formatCurrency(ctx.raw)}` } } } }
+  });
+  
+  let custMap = new Map();
+  filtered.forEach(r => { let name = r['Customer Name'] || 'Unknown'; custMap.set(name, (custMap.get(name) || 0) + parseAmount(r['Dr'])); });
+  let topCust = [...custMap.entries()].sort((a,b) => b[1] - a[1]).slice(0, 10);
+  
+  if (outBar) outBar.destroy();
+  outBar = new Chart(document.getElementById('outBar'), {
+    type: 'bar', data: { labels: topCust.map(c => c[0].length > 15 ? c[0].substring(0,12)+'…' : c[0]), datasets: [{ data: topCust.map(c => c[1]), backgroundColor: '#6c63ff', borderRadius: 12 }] },
+    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => formatCurrency(ctx.raw) } } }, scales: { x: { ticks: { color: '#aaa' }, grid: { display: false } }, y: { ticks: { color: '#aaa', callback: v => formatCurrency(v) } } } }
+  });
+  
+  let tbody = document.getElementById('out-tbody');
+  tbody.innerHTML = filtered.map(r => {
+    let risk = getRisk(r['Invoice Date']);
+    let riskClass = risk === 'high' ? 'risk-high' : risk === 'medium' ? 'risk-medium' : 'risk-processing';
+    let riskText = risk === 'high' ? '⚠️ High' : risk === 'medium' ? '🟡 Medium' : '🟢 Processing';
+    let status = r['Status'] || r['Status / Remarks'] || '—';
+    let statusClass = status.toLowerCase().includes('paid') ? 'status-paid' : 'status-pending';
+    return `<tr><td style="font-weight: 500;">${r['Customer Name']||'—'}</td><td style="color: #aaa;">${r['Invoice #']||'—'}</td><td>${r['Invoice Date']||'—'}</td><td style="color: #aaa;">${r['LPO #']||'—'}</td><td style="font-weight: 600;">${formatCurrency(parseAmount(r['Dr']))}</td><td>${r['Sales Person']||'—'}</td><td><span class="risk-badge ${riskClass}">${riskText}</span></td><td><span class="status-badge ${statusClass}">${status}</span></td></tr>`;
+  }).join('');
 }
 
-// ─── DATA LOADING ─────────────────────────────────────────────────────────────
-function loadFromURLs() {
-  const recUrl = document.getElementById('recovery-url')?.value.trim() || cfg.recUrl;
-  const outUrl = document.getElementById('outstanding-url')?.value.trim() || cfg.outUrl;
-  if (!recUrl && !outUrl) { showSetup(); return; }
-  cfg.recUrl = recUrl; cfg.outUrl = outUrl;
-  localStorage.setItem('fpCfg', JSON.stringify(cfg));
-
-  const loadCSV = (url, cb) => {
-    Papa.parse(url, { download: true, header: true, skipEmptyLines: true, complete: r => cb(r.data), error: () => cb([]) });
-  };
-  if (recUrl) loadCSV(recUrl, d => { recoveryData = d; initRecovery(); hidSetup(); });
-  if (outUrl) loadCSV(outUrl, d => { outstandingData = d; initOutstanding(); });
+function formatCurrency(amt) {
+  return cfg.currency + ' ' + Math.round(amt).toLocaleString();
 }
 
-// ─── DEMO DATA ────────────────────────────────────────────────────────────────
+// ============================================================
+// DATA LOADING
+// ============================================================
 function loadDemo() {
-  const months = ['2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
-  const clients = ['Al Futtaim Group','Emirates NBD','Mashreq Bank','ADNOC','Emaar Properties','Etisalat','Dubai Holdings','Majid Al Futtaim','Abu Dhabi Commercial Bank','Flydubai','Air Arabia','DP World','Jumeirah Group','RAK Ceramics','Aldar Properties'];
-  const banks = ['Emirates NBD','FAB','ADCB','Mashreq','RAKBANK'];
-  recoveryData = [];
-  for (let i=0;i<200;i++) {
-    const m = months[Math.floor(Math.random()*months.length)];
-    const [yr,mo] = m.split('-');
-    const day = String(Math.floor(Math.random()*28)+1).padStart(2,'0');
-    recoveryData.push({
-      'Client / Account Name': clients[Math.floor(Math.random()*clients.length)],
-      'LPO #': 'LPO-' + (1000+i),
-      'Invoice Date': `${yr}-${mo}-01`,
-      'Invoice #': 'INV-' + (5000+i),
-      'Invoice Amount': (Math.random()*200000+10000).toFixed(2),
-      'Amount Recovered': (Math.random()*150000+5000).toFixed(2),
-      'Recovery Date': `${day}/${mo}/${yr}`,
-      'Bank': banks[Math.floor(Math.random()*banks.length)],
-      'Remarks': '',
-      'DateFormated': `${day}/${mo}/${yr}`
-    });
+  const demoRecovery = [];
+  const demoOutstanding = [];
+  for (let i = 1; i <= 50; i++) {
+    demoRecovery.push({ 'Client / Account Name': `Customer ${i}`, 'Amount Recovered': Math.random() * 50000 + 5000, 'Recovery Date': `${Math.floor(Math.random()*28)+1}-Feb-2026`, 'Bank': 'Sample Bank' });
+    demoOutstanding.push({ 'Customer Name': `Client ${i}`, 'Invoice #': `INV-${i}`, 'Invoice Date': `${Math.floor(Math.random()*28)+1}-Feb-2026`, 'LPO #': `LPO-${i}`, 'Dr': Math.random() * 30000 + 2000, 'Sales Person': 'Sales Rep', 'Status': 'Pending' });
   }
-  const outClients = clients.slice(0,12);
-  const sales = ['Ahmed Al Mansoori','Sara Khan','Ravi Patel','Fatima Al Zaabi','John Smith'];
-  const statuses = ['Pending','Follow Up','Disputed','Under Review','Paid'];
-  outstandingData = [];
-  const outMonths = ['2025-06','2025-08','2025-10','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
-  for (let i=0;i<80;i++) {
-    const m = outMonths[Math.floor(Math.random()*outMonths.length)];
-    const [yr,mo] = m.split('-');
-    const day = String(Math.floor(Math.random()*28)+1).padStart(2,'0');
-    const lpoVal = (Math.random()*300000+20000).toFixed(2);
-    const drAmt  = (parseFloat(lpoVal) * (0.3+Math.random()*0.7)).toFixed(2);
-    outstandingData.push({
-      'Customer Name': outClients[Math.floor(Math.random()*outClients.length)],
-      'Invoice Date': `${day}/${mo}/${yr}`,
-      'Invoice #': 'INV-' + (8000+i),
-      'LPO #': 'LPO-' + (2000+i),
-      'LPO Value': lpoVal,
-      '%age': (Math.random()*100).toFixed(1),
-      'Dr': drAmt,
-      'Sales Person': sales[Math.floor(Math.random()*sales.length)],
-      'Status / Remarks': statuses[Math.floor(Math.random()*statuses.length)],
-      'Date Formated': `${day}/${mo}/${yr}`,
-      'Status': statuses[Math.floor(Math.random()*statuses.length)]
-    });
-  }
+  recoveryData = demoRecovery;
+  outstandingData = demoOutstanding;
   initRecovery();
   initOutstanding();
   hidSetup();
 }
 
-// ─── RECOVERY INIT ────────────────────────────────────────────────────────────
-function initRecovery() {
-  const dates = recoveryData.map(r => parseRecoveryDate(r)).filter(Boolean);
-  const years  = [...new Set(dates.map(d => d.getFullYear()))].sort((a,b)=>b-a);
-  const selYear  = document.getElementById('rec-year');
-  const selMonth = document.getElementById('rec-month');
-  selYear.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
-  const now = new Date();
-  selYear.value = now.getFullYear();
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  selMonth.innerHTML = monthNames.map((m,i) => `<option value="${i+1}">${m}</option>`).join('');
-  selMonth.value = now.getMonth() + 1;
-  document.getElementById('rec-topn').value = cfg.topN;
+function loadFromURLs() {
+  let recUrl = document.getElementById('recovery-url')?.value;
+  let outUrl = document.getElementById('outstanding-url')?.value;
+  if (recUrl) Papa.parse(recUrl, { download: true, header: true, complete: (res) => { recoveryData = res.data; initRecovery(); hidSetup(); } });
+  if (outUrl) Papa.parse(outUrl, { download: true, header: true, complete: (res) => { outstandingData = res.data; initOutstanding(); } });
+}
+
+function saveConfig() {
+  cfg.recUrl = document.getElementById('cfg-rec-url')?.value || cfg.recUrl;
+  cfg.outUrl = document.getElementById('cfg-out-url')?.value || cfg.outUrl;
+  cfg.highBefore = document.getElementById('cfg-high-before')?.value || cfg.highBefore;
+  cfg.medBefore = document.getElementById('cfg-med-before')?.value || cfg.medBefore;
+  cfg.currency = document.getElementById('cfg-currency')?.value || cfg.currency;
+  localStorage.setItem('fpCfg', JSON.stringify(cfg));
   renderRecovery();
-}
-
-function renderRecovery() {
-  const month = parseInt(document.getElementById('rec-month').value);
-  const year  = parseInt(document.getElementById('rec-year').value);
-  const topN  = parseInt(document.getElementById('rec-topn').value) || 10;
-  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-  const filtered = recoveryData.filter(r => {
-    const d = parseRecoveryDate(r); if (!d) return false;
-    return d.getMonth()+1 === month && d.getFullYear() === year;
-  });
-
-  const map = {};
-  filtered.forEach(r => {
-    const name = r['Client / Account Name'] || 'Unknown';
-    const amt  = parseAmount(r['Amount Recovered']);
-    const bank = r['Bank'] || '—';
-    if (!map[name]) map[name] = { amt: 0, count: 0, bank };
-    map[name].amt   += amt;
-    map[name].count += 1;
-  });
-  const sorted = Object.entries(map).sort((a,b)=>b[1].amt - a[1].amt).slice(0, topN);
-
-  const total = filtered.reduce((s,r) => s + parseAmount(r['Amount Recovered']), 0);
-  const count = filtered.length;
-  document.getElementById('kpi-total').textContent = fmtAmt(total);
-  document.getElementById('kpi-period').textContent = `${monthNames[month-1]} ${year}`;
-  document.getElementById('kpi-count').textContent  = count;
-  document.getElementById('kpi-avg').textContent    = count ? fmtAmt(total/count) : '—';
-  if (sorted.length) {
-    document.getElementById('kpi-top-name').textContent = sorted[0][0].length > 18 ? sorted[0][0].slice(0,16)+'…' : sorted[0][0];
-    document.getElementById('kpi-top-amt').textContent  = fmtAmt(sorted[0][1].amt);
-  }
-  document.getElementById('table-heading').textContent = `Top ${Math.min(topN, sorted.length)} Customers — ${monthNames[month-1]} ${year}`;
-
-  const colors = genColors(sorted.length);
-  const labels = sorted.map(([n]) => n.length > 16 ? n.slice(0,14)+'…' : n);
-  const values = sorted.map(([,v]) => v.amt);
-  
-  destroyChart(barChartInst);
-  barChartInst = new Chart(document.getElementById('barChart'), {
-    type: 'bar',
-    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 6, borderSkipped: false }] },
-    options: chartOpts('bar')
-  });
-
-  destroyChart(donutChartInst);
-  donutChartInst = new Chart(document.getElementById('donutChart'), {
-    type: 'doughnut',
-    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }] },
-    options: chartOpts('donut')
-  });
-
-  const tbody = document.getElementById('rec-tbody');
-  tbody.innerHTML = sorted.map(([name, v], i) => `
-    <tr>
-      <td class="rank">#${i+1}</td>
-      <td>${name}</td>
-      <td class="amount-cell">${fmtAmt(v.amt)}</td>
-      <td>${v.count}</td>
-      <td>${v.bank}</td>
-    </tr>
-  `).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px">No data for ${monthNames[month-1]} ${year}</td></tr>`;
-}
-
-// ─── OUTSTANDING ─────────────────────────────────────────────────────────────
-function initOutstanding() {
-  const sales = [...new Set(outstandingData.map(r => r['Sales Person']).filter(Boolean))].sort();
-  document.getElementById('out-sales').innerHTML = '<option value="">All</option>' + sales.map(s=>`<option>${s}</option>`).join('');
-  const statuses = [...new Set(outstandingData.map(r => r['Status'] || r['Status / Remarks']).filter(Boolean))].sort();
-  document.getElementById('out-status').innerHTML = '<option value="">All</option>' + statuses.map(s=>`<option>${s}</option>`).join('');
-  updateRiskLabels();
   renderOutstanding();
+  showToast('Settings saved');
 }
 
-function getRisk(r) {
-  const d = parseOutstandingDate(r);
-  if (!d) return 'processing';
-  
-  const ym = d.getFullYear() * 100 + (d.getMonth()+1);
-  const [hy, hm] = cfg.highBefore.split('-').map(Number);
-  const [my2,mm] = cfg.medBefore.split('-').map(Number);
-  const highCut = hy*100+hm, medCut = my2*100+mm;
-  if (ym < highCut) return 'high';
-  if (ym < medCut)  return 'medium';
-  return 'processing';
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  setTimeout(() => toast.style.display = 'none', 2000);
 }
 
-function updateRiskLabels() {
-  const hb = cfg.highBefore, mb = cfg.medBefore;
-  document.getElementById('out-kpi-high-label').textContent  = `Before ${fmtMonth(hb)}`;
-  document.getElementById('out-kpi-med-label').textContent   = `${fmtMonth(hb)} – ${fmtMonth(mb)}`;
-  document.getElementById('out-kpi-proc-label').textContent  = `From ${fmtMonth(mb)}`;
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
 }
 
-function fmtMonth(ym) {
-  if (!ym) return '';
-  const [y,m] = ym.split('-');
-  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1] + ' ' + y;
+function showSetup() {
+  document.getElementById('setup-recovery').style.display = 'block';
+  document.getElementById('recovery-dash').style.display = 'none';
 }
 
-function renderOutstanding() {
-  const search  = (document.getElementById('out-search')?.value||'').toLowerCase();
-  const riskF   = document.getElementById('out-risk')?.value||'';
-  const salesF  = document.getElementById('out-sales')?.value||'';
-  const statusF = document.getElementById('out-status')?.value||'';
-
-  let rows = outstandingData.filter(r => {
-    const name = (r['Customer Name']||'').toLowerCase();
-    const inv  = (r['Invoice #']||'').toLowerCase();
-    if (search && !name.includes(search) && !inv.includes(search)) return false;
-    const risk = getRisk(r);
-    if (riskF && risk !== riskF) return false;
-    if (salesF && r['Sales Person'] !== salesF) return false;
-    const st = r['Status'] || r['Status / Remarks'] || '';
-    if (statusF && st !== statusF) return false;
-    return true;
-  });
-
-  const total = rows.reduce((s,r)=> s + parseAmount(r['Dr']), 0);
-  const high  = rows.filter(r=>getRisk(r)==='high');
-  const med   = rows.filter(r=>getRisk(r)==='medium');
-  const proc  = rows.filter(r=>getRisk(r)==='processing');
-  
-  document.getElementById('out-kpi-total').textContent = fmtAmt(total);
-  document.getElementById('out-kpi-high').textContent  = `${high.length} (${fmtAmt(high.reduce((s,r)=> s + parseAmount(r['Dr']), 0))})`;
-  document.getElementById('out-kpi-med').textContent   = `${med.length} (${fmtAmt(med.reduce((s,r)=> s + parseAmount(r['Dr']), 0))})`;
-  document.getElementById('out-kpi-proc').textContent  = `${proc.length} (${fmtAmt(proc.reduce((s,r)=> s + parseAmount(r['Dr']), 0))})`;
-  document.getElementById('out-count').textContent = `${rows.length} invoices`;
-
-  destroyChart(riskDonutInst);
-  riskDonutInst = new Chart(document.getElementById('riskDonut'), {
-    type: 'doughnut',
-    data: {
-      labels: ['High Risk','Medium Risk','Processing'],
-      datasets: [{
-        data: [
-          high.reduce((s,r)=> s + parseAmount(r['Dr']), 0),
-          med.reduce((s,r)=> s + parseAmount(r['Dr']), 0),
-          proc.reduce((s,r)=> s + parseAmount(r['Dr']), 0)
-        ],
-        backgroundColor: ['rgba(255,107,107,0.85)','rgba(255,201,77,0.85)','rgba(0,212,170,0.85)'],
-        borderWidth: 0, hoverOffset: 6
-      }]
-    },
-    options: chartOpts('donut')
-  });
-
-  const custMap = {};
-  rows.forEach(r=>{
-    const n = r['Customer Name']||'Unknown';
-    custMap[n] = (custMap[n]||0) + parseAmount(r['Dr']);
-  });
-  const topCust = Object.entries(custMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  destroyChart(outBarInst);
-  outBarInst = new Chart(document.getElementById('outBar'), {
-    type: 'bar',
-    data: {
-      labels: topCust.map(([n])=>n.length>14?n.slice(0,12)+'…':n),
-      datasets: [{ data: topCust.map(([,v])=>v), backgroundColor: genColors(topCust.length), borderRadius:6, borderSkipped:false }]
-    },
-    options: chartOpts('bar')
-  });
-
-  const tbody = document.getElementById('out-tbody');
-  tbody.innerHTML = rows.map(r => {
-    const risk = getRisk(r);
-    const riskBadge = {
-      high:   `<span class="risk risk-high"><span class="risk-dot"></span>High Risk</span>`,
-      medium: `<span class="risk risk-medium"><span class="risk-dot"></span>Medium Risk</span>`,
-      processing: `<span class="risk risk-processing"><span class="risk-dot"></span>Processing</span>`
-    }[risk];
-    const st = r['Status'] || r['Status / Remarks'] || '—';
-    const stClass = st.toLowerCase().includes('paid') ? 'status-paid' : st.toLowerCase().includes('pending')||st.toLowerCase().includes('follow') ? 'status-pending' : 'status-other';
-    return `<tr>
-      <td>${r['Customer Name']||'—'}</td>
-      <td style="color:var(--muted)">${r['Invoice #']||'—'}</td>
-      <td>${r['Invoice Date']||'—'}</td>
-      <td style="color:var(--muted)">${r['LPO #']||'—'}</td>
-      <td class="amount-cell">${fmtAmt(parseAmount(r['Dr']))}</td>
-      <td>${r['Sales Person']||'—'}</td>
-      <td>${riskBadge}</td>
-      <td><span class="status ${stClass}">${st}</span></td>
-    </tr>`;
-  }).join('') || `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">No invoices match the current filters</td></tr>`;
+function hidSetup() {
+  document.getElementById('setup-recovery').style.display = 'none';
+  document.getElementById('recovery-dash').style.display = 'block';
 }
 
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-function fmtAmt(n) {
-  return cfg.currency + ' ' + Math.round(n).toLocaleString();
-}
-function destroyChart(c) { if (c) c.destroy(); }
-function redrawCharts() {
-  if (recoveryData.length)   renderRecovery();
-  if (outstandingData.length) renderOutstanding();
-}
-function showToast() {
-  const t = document.getElementById('toast');
-  t.style.display = 'block';
-  setTimeout(()=>{ t.style.display='none'; }, 2500);
+function toggleTheme() {
+  document.body.style.background = document.body.style.background.includes('#0a0c15') ? 'linear-gradient(135deg, #f5f7ff 0%, #e8ecf8 100%)' : 'linear-gradient(135deg, #0a0c15 0%, #0f1222 100%)';
+  document.body.style.color = document.body.style.background.includes('#0a0c15') ? '#fff' : '#1a1d2e';
 }
 
-function genColors(n) {
-  const palette = [
-    '#6c63ff','#00d4aa','#ffc94d','#ff6b6b','#4ecdc4',
-    '#a29bfe','#55efc4','#fdcb6e','#e17055','#74b9ff',
-    '#fd79a8','#00b894','#e84393','#0984e3','#6c5ce7'
-  ];
-  return Array.from({length:n},(_,i)=>palette[i%palette.length]);
-}
+// Load saved config
+try { let saved = localStorage.getItem('fpCfg'); if (saved) cfg = { ...cfg, ...JSON.parse(saved) }; } catch(e) {}
+document.getElementById('cfg-high-before').value = cfg.highBefore;
+document.getElementById('cfg-med-before').value = cfg.medBefore;
+document.getElementById('cfg-currency').value = cfg.currency;
+if (cfg.recUrl) document.getElementById('cfg-rec-url').value = cfg.recUrl;
+if (cfg.outUrl) document.getElementById('cfg-out-url').value = cfg.outUrl;
 
-function chartOpts(type) {
-  const textColor = getComputedStyle(document.body).getPropertyValue('--muted').trim() || '#7b82a0';
-  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-  if (type === 'donut') {
-    return {
-      responsive: true, maintainAspectRatio: false, cutout: '65%',
-      plugins: {
-        legend: { position: 'right', labels: { color: textColor, font: { size: 11 }, padding: 10, boxWidth: 12 } },
-        tooltip: { callbacks: { label: ctx => ' ' + fmtAmt(ctx.raw) } }
-      }
-    };
-  }
-  return {
-    responsive: true, maintainAspectRatio: false, indexAxis: 'y',
-    plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: ctx => ' ' + fmtAmt(ctx.raw) } }
-    },
-    scales: {
-      x: { grid: { color: gridColor }, ticks: { color: textColor, font:{size:10}, callback: v => (v>=1000000?Math.round(v/1000000)+'M':v>=1000?Math.round(v/1000)+'K':v) } },
-      y: { grid: { display: false }, ticks: { color: textColor, font:{size:11} } }
-    }
-  };
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-window.onload = () => {
-  loadConfig();
-  applyTheme();
-  populateConfigFields();
-  if (cfg.recUrl || cfg.outUrl) {
-    loadFromURLs();
-  } else {
-    showSetup();
-  }
-  loadDemo();
-};
+loadDemo();
 </script>
 </body>
 </html>
