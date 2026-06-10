@@ -7,6 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
+  /* ... KEEP YOUR EXISTING CSS HERE (same as before) ... */
   :root {
     --bg: #0f1117;
     --surface: #181c27;
@@ -37,7 +38,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.3s, color 0.3s; }
 
-  /* ── TOP NAV ── */
   .topnav {
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 28px; background: var(--surface);
@@ -67,11 +67,9 @@
   .light .theme-knob { transform: translateX(16px); }
   .theme-label { font-size: 12px; color: var(--muted); }
 
-  /* ── LAYOUT ── */
   .page { display: none; padding: 24px 28px; }
   .page.active { display: block; }
 
-  /* ── CONTROLS BAR ── */
   .controls {
     display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
     background: var(--surface); border-radius: var(--radius);
@@ -98,7 +96,6 @@
     background: transparent; border: 1px solid var(--border); color: var(--text);
   }
 
-  /* ── KPI CARDS ── */
   .kpi-grid {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 14px; margin-bottom: 22px;
@@ -122,7 +119,6 @@
   .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
   .kpi-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 28px; opacity: 0.12; }
 
-  /* ── CHARTS GRID ── */
   .charts-grid {
     display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px;
   }
@@ -134,7 +130,6 @@
   .chart-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 16px; }
   .chart-wrap { position: relative; height: 220px; }
 
-  /* ── TABLE ── */
   .table-card {
     background: var(--surface); border-radius: var(--radius); padding: 20px;
     border: 1px solid var(--border); margin-bottom: 22px;
@@ -149,7 +144,6 @@
   .rank { font-weight: 700; color: var(--accent); }
   .amount-cell { font-weight: 600; font-variant-numeric: tabular-nums; }
 
-  /* ── RISK BADGES ── */
   .risk {
     display: inline-flex; align-items: center; gap: 5px;
     padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
@@ -162,13 +156,11 @@
   .risk-medium .risk-dot { background: var(--amber); }
   .risk-processing .risk-dot { background: var(--accent2); }
 
-  /* ── STATUS BADGE ── */
   .status { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
   .status-paid { background: rgba(0,212,170,0.15); color: var(--accent2); }
   .status-pending { background: rgba(255,201,77,0.15); color: var(--amber); }
   .status-other { background: var(--surface2); color: var(--muted); }
 
-  /* ── CONFIG TAB ── */
   .config-section { background: var(--surface); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); margin-bottom: 18px; }
   .config-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
   .config-desc { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
@@ -186,13 +178,11 @@
   }
   @keyframes fadeup { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
-  /* ── EMPTY STATE ── */
   .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
   .empty-icon { font-size: 40px; margin-bottom: 12px; }
   .empty h3 { font-size: 15px; margin-bottom: 6px; }
   .empty p { font-size: 13px; }
 
-  /* ── SETUP PANEL ── */
   .setup-panel {
     background: var(--surface); border-radius: var(--radius); padding: 30px;
     border: 1px solid var(--border); max-width: 680px; margin: 40px auto;
@@ -209,18 +199,12 @@
   .steps ol li strong { color: var(--text); }
   .demo-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); margin-right: 8px; }
 
-  /* ── SCROLLBAR ── */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  /* ── ANIMATIONS ── */
   .kpi-card, .chart-card, .table-card { animation: fadeIn 0.4s ease both; }
   @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-  .kpi-card:nth-child(1){animation-delay:0.05s}
-  .kpi-card:nth-child(2){animation-delay:0.1s}
-  .kpi-card:nth-child(3){animation-delay:0.15s}
-  .kpi-card:nth-child(4){animation-delay:0.2s}
 </style>
 </head>
 <body>
@@ -244,10 +228,8 @@
   </div>
 </nav>
 
-<!-- ═══════════════════════════ RECOVERY PAGE ═══════════════════════════ -->
+<!-- RECOVERY PAGE -->
 <div class="page active" id="page-recovery">
-
-  <!-- Setup panel shown until URLs are set -->
   <div id="setup-recovery" style="display:none">
     <div class="setup-panel">
       <h2>Connect your Google Sheet</h2>
@@ -279,7 +261,6 @@
     </div>
   </div>
 
-  <!-- Dashboard content -->
   <div id="recovery-dash">
     <div class="controls">
       <div class="ctrl-group">
@@ -298,7 +279,6 @@
       <button class="btn btn-ghost" onclick="showSetup()">Change Data Source</button>
     </div>
 
-    <!-- KPIs -->
     <div class="kpi-grid">
       <div class="kpi-card c1">
         <div class="kpi-label">Total Recovered</div>
@@ -326,7 +306,6 @@
       </div>
     </div>
 
-    <!-- Charts -->
     <div class="charts-grid">
       <div class="chart-card">
         <div class="chart-title">Top Customers — Recovered Amount</div>
@@ -338,7 +317,6 @@
       </div>
     </div>
 
-    <!-- Table -->
     <div class="table-card">
       <div class="table-header">
         <span class="table-title" id="table-heading">Top Customers</span>
@@ -346,13 +324,7 @@
       <div style="overflow-x:auto">
         <table>
           <thead>
-            <tr>
-              <th>#</th>
-              <th>Customer / Account</th>
-              <th>Amount Recovered</th>
-              <th>Transactions</th>
-              <th>Bank</th>
-            </tr>
+            <tr><th>#</th><th>Customer / Account</th><th>Amount Recovered</th><th>Transactions</th><th>Bank</th></tr>
           </thead>
           <tbody id="rec-tbody"></tbody>
         </table>
@@ -361,7 +333,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════ OUTSTANDING PAGE ═══════════════════════════ -->
+<!-- OUTSTANDING PAGE -->
 <div class="page" id="page-outstanding">
   <div class="controls">
     <div class="ctrl-group">
@@ -387,7 +359,6 @@
     </div>
   </div>
 
-  <!-- KPIs -->
   <div class="kpi-grid">
     <div class="kpi-card c1">
       <div class="kpi-label">Total Outstanding (Dr)</div>
@@ -434,16 +405,7 @@
     <div style="overflow-x:auto">
       <table>
         <thead>
-          <tr>
-            <th>Customer</th>
-            <th>Invoice #</th>
-            <th>Invoice Date</th>
-            <th>LPO #</th>
-            <th>Dr Amount</th>
-            <th>Sales Person</th>
-            <th>Risk</th>
-            <th>Status</th>
-          </tr>
+          <tr><th>Customer</th><th>Invoice #</th><th>Invoice Date</th><th>LPO #</th><th>Dr Amount</th><th>Sales Person</th><th>Risk</th><th>Status</th></tr>
         </thead>
         <tbody id="out-tbody"></tbody>
       </table>
@@ -451,9 +413,8 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════ CONFIG PAGE ═══════════════════════════ -->
+<!-- CONFIG PAGE -->
 <div class="page" id="page-config">
-
   <div class="config-section">
     <div class="config-title">Data Source URLs</div>
     <div class="config-desc">Update your Google Sheets CSV links here. Change happens immediately after saving.</div>
@@ -477,17 +438,14 @@
       <div class="config-field">
         <label>🔴 High Risk — invoices before</label>
         <input type="month" id="cfg-high-before" value="2026-01"/>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">Invoices before this month = High Risk</div>
       </div>
       <div class="config-field">
         <label>🟡 Medium Risk — invoices before</label>
         <input type="month" id="cfg-med-before" value="2026-03"/>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">Between High cutoff and this = Medium</div>
       </div>
       <div class="config-field">
         <label>🟢 Processing — invoices from</label>
         <input type="month" id="cfg-proc-from" value="2026-03"/>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">From this month onwards = Processing</div>
       </div>
     </div>
     <button class="btn save-btn" onclick="saveConfig()">Save Configuration</button>
@@ -515,19 +473,6 @@
     </div>
     <button class="btn save-btn" onclick="saveConfig()">Save Settings</button>
   </div>
-
-  <div class="config-section">
-    <div class="config-title">How to update your data</div>
-    <div class="config-desc">Your dashboard reads live from Google Sheets. No manual export needed.</div>
-    <div class="steps" style="background:var(--surface2);border-radius:10px;padding:18px">
-      <ol style="padding-left:18px;font-size:13px;color:var(--muted);line-height:2.2">
-        <li>Open your Google Sheet and edit data normally</li>
-        <li>The published CSV URL <strong>automatically reflects changes</strong> — no re-publishing needed</li>
-        <li>Come back to this dashboard and it shows the latest data on every page load</li>
-        <li>If you add new columns, just re-paste the CSV URL above and save</li>
-      </ol>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -541,18 +486,78 @@ let cfg = {
   topN: 10, currency: 'AED', theme: 'dark'
 };
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-window.onload = () => {
-  loadConfig();
-  applyTheme();
-  populateConfigFields();
-  if (cfg.recUrl || cfg.outUrl) {
-    loadFromURLs();
-  } else {
-    showSetup();
+// ═══════════════════════════════════════════════════════════════════════════
+// 🔧 FIX: DATE PARSER for "5-Feb-2026" format (Month names)
+// ═══════════════════════════════════════════════════════════════════════════
+function parseDateFromString(rawDate) {
+  if (!rawDate) return null;
+  
+  let dateStr = rawDate.toString().trim();
+  
+  // Month name mapping
+  let monthNames = {
+    'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5,
+    'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11
+  };
+  
+  // Handle "5-Feb-2026" or "05-Feb-2026" or "5/Feb/2026"
+  let monthPattern = /(\d{1,2})[-\/](jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[-\/](\d{4})/i;
+  let match = dateStr.match(monthPattern);
+  
+  if (match) {
+    let day = parseInt(match[1]);
+    let month = monthNames[match[2].toLowerCase()];
+    let year = parseInt(match[3]);
+    if (!isNaN(day) && month !== undefined && !isNaN(year)) {
+      return new Date(year, month, day);
+    }
   }
-  loadDemo(); // always load demo as fallback
-};
+  
+  // Handle "2026-02-05" format (YYYY-MM-DD)
+  let ymdPattern = /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/;
+  let ymdMatch = dateStr.match(ymdPattern);
+  if (ymdMatch) {
+    return new Date(parseInt(ymdMatch[1]), parseInt(ymdMatch[2]) - 1, parseInt(ymdMatch[3]));
+  }
+  
+  // Handle "05/02/2026" format (DD/MM/YYYY)
+  let dmyPattern = /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/;
+  let dmyMatch = dateStr.match(dmyPattern);
+  if (dmyMatch) {
+    return new Date(parseInt(dmyMatch[3]), parseInt(dmyMatch[2]) - 1, parseInt(dmyMatch[1]));
+  }
+  
+  // Try standard Date parsing
+  let d = new Date(dateStr);
+  if (!isNaN(d)) return d;
+  
+  return null;
+}
+
+function parseRecoveryDate(r) {
+  let raw = r['Recovery Date'] || r['DateFormated'] || r['Invoice Date'] || '';
+  return parseDateFromString(raw);
+}
+
+function parseOutstandingDate(r) {
+  let raw = r['Invoice Date'] || '';
+  return parseDateFromString(raw);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 🔧 FIX: AMOUNT PARSER - Handles commas in numbers like "44,625.00"
+// ═══════════════════════════════════════════════════════════════════════════
+function parseAmount(value) {
+  if (!value) return 0;
+  if (typeof value === 'number') return value;
+  
+  let str = String(value).replace(/,/g, '').replace(/AED\s*/gi, '').replace(/\$/g, '');
+  let match = str.match(/[\d.]+/);
+  if (match) {
+    return parseFloat(match[0]) || 0;
+  }
+  return 0;
+}
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 function loadConfig() {
@@ -615,7 +620,7 @@ function showPage(p) {
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
   document.getElementById('page-' + p).classList.add('active');
-  event.target.classList.add('active');
+  if (event && event.target) event.target.classList.add('active');
 }
 function showSetup() {
   document.getElementById('setup-recovery').style.display = '';
@@ -658,7 +663,7 @@ function loadDemo() {
       'Invoice #': 'INV-' + (5000+i),
       'Invoice Amount': (Math.random()*200000+10000).toFixed(2),
       'Amount Recovered': (Math.random()*150000+5000).toFixed(2),
-      'Recovery Date': `${yr}-${mo}-${day}`,
+      'Recovery Date': `${day}/${mo}/${yr}`,
       'Bank': banks[Math.floor(Math.random()*banks.length)],
       'Remarks': '',
       'DateFormated': `${day}/${mo}/${yr}`
@@ -677,7 +682,7 @@ function loadDemo() {
     const drAmt  = (parseFloat(lpoVal) * (0.3+Math.random()*0.7)).toFixed(2);
     outstandingData.push({
       'Customer Name': outClients[Math.floor(Math.random()*outClients.length)],
-      'Invoice Date': `${yr}-${mo}-${day}`,
+      'Invoice Date': `${day}/${mo}/${yr}`,
       'Invoice #': 'INV-' + (8000+i),
       'LPO #': 'LPO-' + (2000+i),
       'LPO Value': lpoVal,
@@ -692,80 +697,6 @@ function loadDemo() {
   initRecovery();
   initOutstanding();
   hidSetup();
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 🔧 FIX 1: IMPROVED DATE PARSING - Handles ALL common date formats
-// ═══════════════════════════════════════════════════════════════════════════
-function parseRecoveryDate(r) {
-  // Try multiple possible date fields
-  let raw = r['Recovery Date'] || r['DateFormated'] || r['Invoice Date'] || '';
-  if (!raw) return null;
-  
-  raw = raw.toString().trim();
-  
-  // Handle DD/MM/YYYY or DD-MM-YYYY
-  if (raw.includes('/') || raw.includes('-')) {
-    let parts = raw.split(/[-\/]/);
-    if (parts.length === 3) {
-      // Check if first part is year (YYYY/MM/DD)
-      if (parts[0].length === 4) {
-        return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-      } else {
-        // Assume DD/MM/YYYY
-        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-      }
-    }
-  }
-  
-  // Try standard Date parsing
-  let d = new Date(raw);
-  if (!isNaN(d)) return d;
-  
-  return null;
-}
-
-// For Outstanding sheet date parsing
-function parseOutstandingDate(r) {
-  let raw = r['Invoice Date'] || '';
-  if (!raw) return null;
-  
-  raw = raw.toString().trim();
-  
-  // Handle DD/MM/YYYY or DD-MM-YYYY
-  if (raw.includes('/') || raw.includes('-')) {
-    let parts = raw.split(/[-\/]/);
-    if (parts.length === 3) {
-      // Check if first part is year (YYYY/MM/DD)
-      if (parts[0].length === 4) {
-        return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-      } else {
-        // Assume DD/MM/YYYY
-        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-      }
-    }
-  }
-  
-  let d = new Date(raw);
-  return isNaN(d) ? null : d;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 🔧 FIX 2: IMPROVED AMOUNT PARSING - Handles commas in numbers
-// ═══════════════════════════════════════════════════════════════════════════
-function parseAmount(value) {
-  if (!value) return 0;
-  if (typeof value === 'number') return value;
-  
-  // Convert to string, remove commas, remove currency symbols
-  let str = String(value).replace(/,/g, '').replace(/AED\s*/gi, '').replace(/\$/g, '');
-  
-  // Extract the first number found (handles "44,625.00" or "44")
-  let match = str.match(/[\d.]+/);
-  if (match) {
-    return parseFloat(match[0]) || 0;
-  }
-  return 0;
 }
 
 // ─── RECOVERY INIT ────────────────────────────────────────────────────────────
@@ -795,7 +726,6 @@ function renderRecovery() {
     return d.getMonth()+1 === month && d.getFullYear() === year;
   });
 
-  // Aggregate by customer
   const map = {};
   filtered.forEach(r => {
     const name = r['Client / Account Name'] || 'Unknown';
@@ -807,7 +737,6 @@ function renderRecovery() {
   });
   const sorted = Object.entries(map).sort((a,b)=>b[1].amt - a[1].amt).slice(0, topN);
 
-  // KPIs
   const total = filtered.reduce((s,r) => s + parseAmount(r['Amount Recovered']), 0);
   const count = filtered.length;
   document.getElementById('kpi-total').textContent = fmtAmt(total);
@@ -820,12 +749,10 @@ function renderRecovery() {
   }
   document.getElementById('table-heading').textContent = `Top ${Math.min(topN, sorted.length)} Customers — ${monthNames[month-1]} ${year}`;
 
-  // Colors
   const colors = genColors(sorted.length);
-
-  // Bar chart
   const labels = sorted.map(([n]) => n.length > 16 ? n.slice(0,14)+'…' : n);
   const values = sorted.map(([,v]) => v.amt);
+  
   destroyChart(barChartInst);
   barChartInst = new Chart(document.getElementById('barChart'), {
     type: 'bar',
@@ -833,7 +760,6 @@ function renderRecovery() {
     options: chartOpts('bar')
   });
 
-  // Donut chart
   destroyChart(donutChartInst);
   donutChartInst = new Chart(document.getElementById('donutChart'), {
     type: 'doughnut',
@@ -841,7 +767,6 @@ function renderRecovery() {
     options: chartOpts('donut')
   });
 
-  // Table
   const tbody = document.getElementById('rec-tbody');
   tbody.innerHTML = sorted.map(([name, v], i) => `
     <tr>
@@ -850,13 +775,12 @@ function renderRecovery() {
       <td class="amount-cell">${fmtAmt(v.amt)}</td>
       <td>${v.count}</td>
       <td>${v.bank}</td>
-    </table>
+    </tr>
   `).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px">No data for ${monthNames[month-1]} ${year}</td></tr>`;
 }
 
 // ─── OUTSTANDING ─────────────────────────────────────────────────────────────
 function initOutstanding() {
-  // Populate sales person filter
   const sales = [...new Set(outstandingData.map(r => r['Sales Person']).filter(Boolean))].sort();
   document.getElementById('out-sales').innerHTML = '<option value="">All</option>' + sales.map(s=>`<option>${s}</option>`).join('');
   const statuses = [...new Set(outstandingData.map(r => r['Status'] || r['Status / Remarks']).filter(Boolean))].sort();
@@ -909,7 +833,6 @@ function renderOutstanding() {
     return true;
   });
 
-  // KPIs - 🔧 FIXED: Use parseAmount for Dr column
   const total = rows.reduce((s,r)=> s + parseAmount(r['Dr']), 0);
   const high  = rows.filter(r=>getRisk(r)==='high');
   const med   = rows.filter(r=>getRisk(r)==='medium');
@@ -919,10 +842,8 @@ function renderOutstanding() {
   document.getElementById('out-kpi-high').textContent  = `${high.length} (${fmtAmt(high.reduce((s,r)=> s + parseAmount(r['Dr']), 0))})`;
   document.getElementById('out-kpi-med').textContent   = `${med.length} (${fmtAmt(med.reduce((s,r)=> s + parseAmount(r['Dr']), 0))})`;
   document.getElementById('out-kpi-proc').textContent  = `${proc.length} (${fmtAmt(proc.reduce((s,r)=> s + parseAmount(r['Dr']), 0))})`;
-
   document.getElementById('out-count').textContent = `${rows.length} invoices`;
 
-  // Risk donut
   destroyChart(riskDonutInst);
   riskDonutInst = new Chart(document.getElementById('riskDonut'), {
     type: 'doughnut',
@@ -941,7 +862,6 @@ function renderOutstanding() {
     options: chartOpts('donut')
   });
 
-  // Top customer bar - 🔧 FIXED: Use parseAmount
   const custMap = {};
   rows.forEach(r=>{
     const n = r['Customer Name']||'Unknown';
@@ -958,7 +878,6 @@ function renderOutstanding() {
     options: chartOpts('bar')
   });
 
-  // Table - 🔧 FIXED: Use parseAmount for Dr column
   const tbody = document.getElementById('out-tbody');
   tbody.innerHTML = rows.map(r => {
     const risk = getRisk(r);
@@ -1030,6 +949,19 @@ function chartOpts(type) {
     }
   };
 }
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.onload = () => {
+  loadConfig();
+  applyTheme();
+  populateConfigFields();
+  if (cfg.recUrl || cfg.outUrl) {
+    loadFromURLs();
+  } else {
+    showSetup();
+  }
+  loadDemo();
+};
 </script>
 </body>
 </html>
