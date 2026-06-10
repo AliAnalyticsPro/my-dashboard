@@ -327,6 +327,244 @@
   }
 </style>
 </head>
+<!-- ============================================================ -->
+<!-- AUTHENTICATION SYSTEM -->
+<!-- ============================================================ -->
+<style>
+  #loginOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+  }
+  
+  .login-card {
+    background: var(--surface);
+    padding: 40px;
+    border-radius: 24px;
+    width: 380px;
+    text-align: center;
+    border: 1px solid var(--border);
+    animation: fadeInUp 0.4s ease;
+  }
+  
+  .login-input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 14px;
+  }
+  
+  .login-input:focus {
+    outline: none;
+    border-color: #8b5cf6;
+  }
+  
+  .login-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .user-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 12px;
+  }
+  
+  .logout-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 30px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+</style>
+
+<div id="loginOverlay">
+  <div class="login-card">
+    <h2 style="margin-bottom: 8px;">🔐 Finance Pulse</h2>
+    <p style="color: var(--text-muted); margin-bottom: 28px; font-size: 13px;">Secure Dashboard Access</p>
+    
+    <input type="text" id="loginUser" class="login-input" placeholder="Username" autocomplete="off">
+    <input type="password" id="loginPass" class="login-input" placeholder="Password">
+    
+    <button class="login-btn" onclick="authenticate()">Login →</button>
+    
+    <div style="margin-top: 20px; font-size: 11px; color: var(--text-muted);">
+      <p>Demo: admin / admin123</p>
+    </div>
+    
+    <p id="loginMsg" style="color: #ef4444; margin-top: 16px; font-size: 12px; display: none;"></p>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// AUTHENTICATION CONFIGURATION
+// ============================================================
+const AUTH_CONFIG = {
+  // Change these credentials
+  admin: { password: "admin123", role: "Administrator", canEdit: true },
+  manager: { password: "manager456", role: "Finance Manager", canEdit: true },
+  viewer: { password: "viewer789", role: "Viewer", canEdit: false }
+};
+
+// Session timeout in minutes (default: 30)
+const SESSION_TIMEOUT_MINUTES = 30;
+
+// ============================================================
+// AUTHENTICATION FUNCTIONS
+// ============================================================
+let authTimeout;
+
+function authenticate() {
+  let username = document.getElementById('loginUser').value.trim();
+  let password = document.getElementById('loginPass').value;
+  let msgEl = document.getElementById('loginMsg');
+  
+  if (!username || !password) {
+    msgEl.textContent = 'Please enter username and password';
+    msgEl.style.display = 'block';
+    return;
+  }
+  
+  if (AUTH_CONFIG[username] && AUTH_CONFIG[username].password === password) {
+    // Login successful
+    let userData = {
+      username: username,
+      role: AUTH_CONFIG[username].role,
+      canEdit: AUTH_CONFIG[username].canEdit,
+      loginTime: new Date().toISOString()
+    };
+    
+    localStorage.setItem('financeAuth', JSON.stringify(userData));
+    document.getElementById('loginOverlay').style.display = 'none';
+    
+    // Add user indicator to navbar
+    addUserIndicator(userData);
+    
+    showToast(`Welcome back, ${userData.role}!`);
+    startInactivityTimer();
+  } else {
+    msgEl.textContent = 'Invalid username or password';
+    msgEl.style.display = 'block';
+  }
+}
+
+function addUserIndicator(userData) {
+  let navbar = document.querySelector('.navbar');
+  let existingIndicator = document.querySelector('.user-indicator');
+  if (existingIndicator) existingIndicator.remove();
+  
+  let indicator = document.createElement('div');
+  indicator.className = 'user-indicator';
+  indicator.style.display = 'flex';
+  indicator.style.alignItems = 'center';
+  indicator.style.gap = '12px';
+  
+  indicator.innerHTML = `
+    <div class="user-badge">
+      <span>👤</span>
+      <span>${userData.role}</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  `;
+  
+  navbar.appendChild(indicator);
+  
+  // If user is viewer, disable edit features
+  if (!userData.canEdit) {
+    document.querySelectorAll('.btn-primary, .btn-secondary, .control-select').forEach(el => {
+      if (el.tagName === 'BUTTON' && !el.classList.contains('logout-btn')) {
+        el.disabled = true;
+        el.style.opacity = '0.5';
+        el.style.cursor = 'not-allowed';
+      }
+    });
+  }
+}
+
+function logout() {
+  localStorage.removeItem('financeAuth');
+  location.reload();
+}
+
+function startInactivityTimer() {
+  if (authTimeout) clearTimeout(authTimeout);
+  authTimeout = setTimeout(() => {
+    logout();
+    showToast('Session expired due to inactivity');
+  }, SESSION_TIMEOUT_MINUTES * 60 * 1000);
+}
+
+function resetInactivityTimer() {
+  if (localStorage.getItem('financeAuth')) {
+    if (authTimeout) clearTimeout(authTimeout);
+    authTimeout = setTimeout(() => {
+      logout();
+    }, SESSION_TIMEOUT_MINUTES * 60 * 1000);
+  }
+}
+
+// Check existing session on page load
+function checkSession() {
+  let savedAuth = localStorage.getItem('financeAuth');
+  if (savedAuth) {
+    try {
+      let userData = JSON.parse(savedAuth);
+      if (userData.loginTime) {
+        document.getElementById('loginOverlay').style.display = 'none';
+        addUserIndicator(userData);
+        startInactivityTimer();
+      } else {
+        localStorage.removeItem('financeAuth');
+      }
+    } catch(e) {
+      localStorage.removeItem('financeAuth');
+    }
+  }
+}
+
+// Track user activity
+document.addEventListener('mousemove', resetInactivityTimer);
+document.addEventListener('keydown', resetInactivityTimer);
+document.addEventListener('click', resetInactivityTimer);
+
+// Enter key login
+document.getElementById('loginPass').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') authenticate();
+});
+document.getElementById('loginUser').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') document.getElementById('loginPass').focus();
+});
+
+// Initialize
+checkSession();
+</script>
 <body class="dark">
 
 <nav class="navbar">
