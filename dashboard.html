@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Finance Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2334;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8eaf0;
+    --muted: #7b82a0;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --amber: #ffc94d;
+    --radius: 14px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  .light {
+    --bg: #f0f2f8;
+    --surface: #ffffff;
+    --surface2: #f5f7ff;
+    --border: rgba(0,0,0,0.08);
+    --text: #1a1d2e;
+    --muted: #6b7090;
+    --accent: #5046e5;
+    --accent2: #00a88a;
+    --accent3: #e03e3e;
+    --amber: #d4900a;
+    --shadow: 0 4px 24px rgba(0,0,0,0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.3s, color 0.3s; }
+
+  /* ── TOP NAV ── */
+  .topnav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px; background: var(--surface);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+    box-shadow: var(--shadow);
+  }
+  .brand { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+  .brand span { color: var(--accent); }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab {
+    padding: 7px 18px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none; background: transparent; color: var(--muted);
+    transition: all 0.2s;
+  }
+  .nav-tab.active { background: var(--accent); color: #fff; }
+  .nav-tab:hover:not(.active) { background: var(--surface2); color: var(--text); }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .theme-btn {
+    width: 38px; height: 22px; border-radius: 11px; border: none; cursor: pointer;
+    background: var(--border); position: relative; transition: background 0.3s;
+    display: flex; align-items: center; padding: 2px;
+  }
+  .theme-knob {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--accent);
+    transition: transform 0.3s; flex-shrink: 0;
+  }
+  .light .theme-knob { transform: translateX(16px); }
+  .theme-label { font-size: 12px; color: var(--muted); }
+
+  /* ── LAYOUT ── */
+  .page { display: none; padding: 24px 28px; }
+  .page.active { display: block; }
+
+  /* ── CONTROLS BAR ── */
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    background: var(--surface); border-radius: var(--radius);
+    padding: 14px 18px; margin-bottom: 22px;
+    border: 1px solid var(--border);
+  }
+  .ctrl-group { display: flex; align-items: center; gap: 8px; }
+  .ctrl-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+  select, input[type=number] {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 7px 12px;
+    font-size: 13px; cursor: pointer; outline: none;
+    transition: border-color 0.2s;
+  }
+  select:focus, input:focus { border-color: var(--accent); }
+  input[type=number] { width: 70px; }
+  .btn {
+    padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; background: var(--accent); color: #fff;
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-ghost {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+  }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px; margin-bottom: 22px;
+  }
+  .kpi-card {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 18px 20px; border: 1px solid var(--border);
+    position: relative; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .kpi-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .kpi-card.c1::before { background: var(--accent); }
+  .kpi-card.c2::before { background: var(--accent2); }
+  .kpi-card.c3::before { background: var(--amber); }
+  .kpi-card.c4::before { background: var(--accent3); }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 8px; }
+  .kpi-value { font-size: 26px; font-weight: 700; letter-spacing: -1px; line-height: 1; }
+  .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .kpi-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 28px; opacity: 0.12; }
+
+  /* ── CHARTS GRID ── */
+  .charts-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px;
+  }
+  @media(max-width:768px) { .charts-grid { grid-template-columns: 1fr; } }
+  .chart-card {
+    background: var(--surface); border-radius: var(--radius); padding: 20px;
+    border: 1px solid var(--border);
+  }
+  .chart-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 16px; }
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* ── TABLE ── */
+  .table-card {
+    background: var(--surface); border-radius: var(--radius); padding: 20px;
+    border: 1px solid var(--border); margin-bottom: 22px;
+  }
+  .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .table-title { font-size: 14px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 9px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 600; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+  .rank { font-weight: 700; color: var(--accent); }
+  .amount-cell { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* ── RISK BADGES ── */
+  .risk {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .risk-high { background: rgba(255,107,107,0.15); color: var(--accent3); border: 1px solid rgba(255,107,107,0.3); }
+  .risk-medium { background: rgba(255,201,77,0.15); color: var(--amber); border: 1px solid rgba(255,201,77,0.3); }
+  .risk-processing { background: rgba(0,212,170,0.15); color: var(--accent2); border: 1px solid rgba(0,212,170,0.3); }
+  .risk-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .risk-high .risk-dot { background: var(--accent3); }
+  .risk-medium .risk-dot { background: var(--amber); }
+  .risk-processing .risk-dot { background: var(--accent2); }
+
+  /* ── STATUS BADGE ── */
+  .status { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .status-paid { background: rgba(0,212,170,0.15); color: var(--accent2); }
+  .status-pending { background: rgba(255,201,77,0.15); color: var(--amber); }
+  .status-other { background: var(--surface2); color: var(--muted); }
+
+  /* ── CONFIG TAB ── */
+  .config-section { background: var(--surface); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); margin-bottom: 18px; }
+  .config-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .config-desc { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+  .config-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media(max-width:600px) { .config-grid { grid-template-columns: 1fr; } }
+  .config-field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+  .config-field input, .config-field select { width: 100%; }
+  .config-field input[type=color] { height: 38px; padding: 4px 8px; cursor: pointer; width: 100%; }
+  .config-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+  .save-btn { margin-top: 16px; }
+  .saved-toast {
+    display: none; position: fixed; bottom: 24px; right: 24px;
+    background: var(--accent2); color: #fff; padding: 10px 20px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; z-index: 999; animation: fadeup 0.3s ease;
+  }
+  @keyframes fadeup { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── EMPTY STATE ── */
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty h3 { font-size: 15px; margin-bottom: 6px; }
+  .empty p { font-size: 13px; }
+
+  /* ── SETUP PANEL ── */
+  .setup-panel {
+    background: var(--surface); border-radius: var(--radius); padding: 30px;
+    border: 1px solid var(--border); max-width: 680px; margin: 40px auto;
+    text-align: center;
+  }
+  .setup-panel h2 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+  .setup-panel p { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+  .url-inputs { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+  .url-inputs label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 4px; }
+  .url-inputs input { width: 100%; padding: 10px 14px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 13px; }
+  .steps { text-align: left; background: var(--surface2); border-radius: 10px; padding: 18px; margin-bottom: 24px; }
+  .steps h4 { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: var(--accent); }
+  .steps ol { padding-left: 18px; font-size: 13px; color: var(--muted); line-height: 2; }
+  .steps ol li strong { color: var(--text); }
+  .demo-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); margin-right: 8px; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── ANIMATIONS ── */
+  .kpi-card, .chart-card, .table-card { animation: fadeIn 0.4s ease both; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .kpi-card:nth-child(1){animation-delay:0.05s}
+  .kpi-card:nth-child(2){animation-delay:0.1s}
+  .kpi-card:nth-child(3){animation-delay:0.15s}
+  .kpi-card:nth-child(4){animation-delay:0.2s}
+</style>
+</head>
+<body>
+
+<!-- Toast -->
+<div class="saved-toast" id="toast">✓ Settings saved</div>
+
+<!-- NAV -->
+<nav class="topnav">
+  <div class="brand">Finance<span>Pulse</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('recovery')">Recovery</button>
+    <button class="nav-tab" onclick="showPage('outstanding')">Outstanding</button>
+    <button class="nav-tab" onclick="showPage('config')">⚙ Config</button>
+  </div>
+  <div class="nav-right">
+    <span class="theme-label" id="theme-label">Dark</span>
+    <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">
+      <span class="theme-knob"></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════ RECOVERY PAGE ═══════════════════════════ -->
+<div class="page active" id="page-recovery">
+
+  <!-- Setup panel shown until URLs are set -->
+  <div id="setup-recovery" style="display:none">
+    <div class="setup-panel">
+      <h2>Connect your Google Sheet</h2>
+      <p>Paste the published CSV URLs for both tabs below.<br>Once connected, your dashboard will always show live data.</p>
+      <div class="steps">
+        <h4>How to get your CSV URL from Google Sheets</h4>
+        <ol>
+          <li>Open your Google Sheet</li>
+          <li>Click <strong>File → Share → Publish to web</strong></li>
+          <li>Choose the tab (Recovery or Outstanding), select <strong>CSV</strong> format</li>
+          <li>Click <strong>Publish</strong> and copy the URL</li>
+          <li>Paste it below and click Load</li>
+        </ol>
+      </div>
+      <div class="url-inputs">
+        <div>
+          <label>Recovery Tab — CSV URL</label>
+          <input type="text" id="recovery-url" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=...&single=true&output=csv"/>
+        </div>
+        <div style="margin-top:10px">
+          <label>Outstanding Tab — CSV URL</label>
+          <input type="text" id="outstanding-url" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=...&single=true&output=csv"/>
+        </div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:10px;justify-content:center">
+        <button class="btn demo-btn" onclick="loadDemo()">Load Demo Data</button>
+        <button class="btn" onclick="loadFromURLs()">Load My Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard content -->
+  <div id="recovery-dash">
+    <div class="controls">
+      <div class="ctrl-group">
+        <span class="ctrl-label">Month</span>
+        <select id="rec-month"></select>
+      </div>
+      <div class="ctrl-group">
+        <span class="ctrl-label">Year</span>
+        <select id="rec-year"></select>
+      </div>
+      <div class="ctrl-group">
+        <span class="ctrl-label">Top Customers</span>
+        <input type="number" id="rec-topn" min="1" max="50" value="10"/>
+      </div>
+      <button class="btn" onclick="renderRecovery()">Apply</button>
+      <button class="btn btn-ghost" onclick="showSetup()">Change Data Source</button>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card c1">
+        <div class="kpi-label">Total Recovered</div>
+        <div class="kpi-value" id="kpi-total">—</div>
+        <div class="kpi-sub" id="kpi-period">—</div>
+        <div class="kpi-icon">💰</div>
+      </div>
+      <div class="kpi-card c2">
+        <div class="kpi-label">Transactions</div>
+        <div class="kpi-value" id="kpi-count">—</div>
+        <div class="kpi-sub">Payments received</div>
+        <div class="kpi-icon">📋</div>
+      </div>
+      <div class="kpi-card c3">
+        <div class="kpi-label">Top Customer</div>
+        <div class="kpi-value" id="kpi-top-name" style="font-size:15px;margin-top:4px">—</div>
+        <div class="kpi-sub" id="kpi-top-amt">—</div>
+        <div class="kpi-icon">🏆</div>
+      </div>
+      <div class="kpi-card c4">
+        <div class="kpi-label">Avg per Transaction</div>
+        <div class="kpi-value" id="kpi-avg">—</div>
+        <div class="kpi-sub">Average recovery</div>
+        <div class="kpi-icon">📊</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Top Customers — Recovered Amount</div>
+        <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Recovery Share by Customer</div>
+        <div class="chart-wrap"><canvas id="donutChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title" id="table-heading">Top Customers</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Customer / Account</th>
+              <th>Amount Recovered</th>
+              <th>Transactions</th>
+              <th>Bank</th>
+            </tr>
+          </thead>
+          <tbody id="rec-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ OUTSTANDING PAGE ═══════════════════════════ -->
+<div class="page" id="page-outstanding">
+  <div class="controls">
+    <div class="ctrl-group">
+      <span class="ctrl-label">Search</span>
+      <input type="text" id="out-search" placeholder="Customer or invoice..." style="width:200px" oninput="renderOutstanding()"/>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Risk</span>
+      <select id="out-risk" onchange="renderOutstanding()">
+        <option value="">All Risks</option>
+        <option value="high">High Risk</option>
+        <option value="medium">Medium Risk</option>
+        <option value="processing">Processing</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Sales Person</span>
+      <select id="out-sales" onchange="renderOutstanding()"><option value="">All</option></select>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">Status</span>
+      <select id="out-status" onchange="renderOutstanding()"><option value="">All</option></select>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card c1">
+      <div class="kpi-label">Total Outstanding (Dr)</div>
+      <div class="kpi-value" id="out-kpi-total">—</div>
+      <div class="kpi-sub">All invoices</div>
+      <div class="kpi-icon">📄</div>
+    </div>
+    <div class="kpi-card c4">
+      <div class="kpi-label">High Risk</div>
+      <div class="kpi-value" id="out-kpi-high">—</div>
+      <div class="kpi-sub" id="out-kpi-high-label">Before 2026</div>
+      <div class="kpi-icon">⚠️</div>
+    </div>
+    <div class="kpi-card c3">
+      <div class="kpi-label">Medium Risk</div>
+      <div class="kpi-value" id="out-kpi-med">—</div>
+      <div class="kpi-sub" id="out-kpi-med-label">Jan–Feb 2026</div>
+      <div class="kpi-icon">🔔</div>
+    </div>
+    <div class="kpi-card c2">
+      <div class="kpi-label">Processing</div>
+      <div class="kpi-value" id="out-kpi-proc">—</div>
+      <div class="kpi-sub" id="out-kpi-proc-label">Mar 2026 onwards</div>
+      <div class="kpi-icon">🔄</div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">Outstanding by Risk Level</div>
+      <div class="chart-wrap"><canvas id="riskDonut"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Top 10 Outstanding Customers (Dr)</div>
+      <div class="chart-wrap"><canvas id="outBar"></canvas></div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">Outstanding Invoices</span>
+      <span id="out-count" style="font-size:13px;color:var(--muted)"></span>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Invoice #</th>
+            <th>Invoice Date</th>
+            <th>LPO #</th>
+            <th>Dr Amount</th>
+            <th>Sales Person</th>
+            <th>Risk</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="out-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ CONFIG PAGE ═══════════════════════════ -->
+<div class="page" id="page-config">
+
+  <div class="config-section">
+    <div class="config-title">Data Source URLs</div>
+    <div class="config-desc">Update your Google Sheets CSV links here. Change happens immediately after saving.</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="config-field">
+        <label>Recovery Tab CSV URL</label>
+        <input type="text" id="cfg-rec-url" placeholder="Paste Google Sheets CSV URL"/>
+      </div>
+      <div class="config-field">
+        <label>Outstanding Tab CSV URL</label>
+        <input type="text" id="cfg-out-url" placeholder="Paste Google Sheets CSV URL"/>
+      </div>
+    </div>
+    <button class="btn save-btn" onclick="saveURLs()">Save & Reload Data</button>
+  </div>
+
+  <div class="config-section">
+    <div class="config-title">Risk Label Configuration</div>
+    <div class="config-desc">Set the invoice date cutoffs that define each risk category. Based on Invoice Date column.</div>
+    <div class="config-grid">
+      <div class="config-field">
+        <label>🔴 High Risk — invoices before</label>
+        <input type="month" id="cfg-high-before" value="2026-01"/>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Invoices before this month = High Risk</div>
+      </div>
+      <div class="config-field">
+        <label>🟡 Medium Risk — invoices before</label>
+        <input type="month" id="cfg-med-before" value="2026-03"/>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Between High cutoff and this = Medium</div>
+      </div>
+      <div class="config-field">
+        <label>🟢 Processing — invoices from</label>
+        <input type="month" id="cfg-proc-from" value="2026-03"/>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">From this month onwards = Processing</div>
+      </div>
+    </div>
+    <button class="btn save-btn" onclick="saveConfig()">Save Configuration</button>
+  </div>
+
+  <div class="config-section">
+    <div class="config-title">Dashboard Settings</div>
+    <div class="config-desc">Customize how the dashboard displays data.</div>
+    <div class="config-grid">
+      <div class="config-field">
+        <label>Default Top N Customers (Recovery)</label>
+        <input type="number" id="cfg-topn" min="1" max="50" value="10"/>
+      </div>
+      <div class="config-field">
+        <label>Currency Symbol</label>
+        <input type="text" id="cfg-currency" value="AED" style="max-width:100px"/>
+      </div>
+      <div class="config-field">
+        <label>Default Theme</label>
+        <select id="cfg-theme">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn save-btn" onclick="saveConfig()">Save Settings</button>
+  </div>
+
+  <div class="config-section">
+    <div class="config-title">How to update your data</div>
+    <div class="config-desc">Your dashboard reads live from Google Sheets. No manual export needed.</div>
+    <div class="steps" style="background:var(--surface2);border-radius:10px;padding:18px">
+      <ol style="padding-left:18px;font-size:13px;color:var(--muted);line-height:2.2">
+        <li>Open your Google Sheet and edit data normally</li>
+        <li>The published CSV URL <strong>automatically reflects changes</strong> — no re-publishing needed</li>
+        <li>Come back to this dashboard and it shows the latest data on every page load</li>
+        <li>If you add new columns, just re-paste the CSV URL above and save</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let recoveryData = [];
+let outstandingData = [];
+let barChartInst = null, donutChartInst = null, riskDonutInst = null, outBarInst = null;
+let cfg = {
+  recUrl: '', outUrl: '',
+  highBefore: '2026-01', medBefore: '2026-03', procFrom: '2026-03',
+  topN: 10, currency: 'AED', theme: 'dark'
+};
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.onload = () => {
+  loadConfig();
+  applyTheme();
+  populateConfigFields();
+  if (cfg.recUrl || cfg.outUrl) {
+    loadFromURLs();
+  } else {
+    showSetup();
+  }
+  loadDemo(); // always load demo as fallback
+};
+
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+function loadConfig() {
+  try {
+    const s = localStorage.getItem('fpCfg');
+    if (s) cfg = { ...cfg, ...JSON.parse(s) };
+  } catch(e) {}
+}
+function saveConfig() {
+  cfg.highBefore = document.getElementById('cfg-high-before').value;
+  cfg.medBefore  = document.getElementById('cfg-med-before').value;
+  cfg.procFrom   = document.getElementById('cfg-proc-from').value;
+  cfg.topN       = parseInt(document.getElementById('cfg-topn').value) || 10;
+  cfg.currency   = document.getElementById('cfg-currency').value || 'AED';
+  cfg.theme      = document.getElementById('cfg-theme').value;
+  localStorage.setItem('fpCfg', JSON.stringify(cfg));
+  document.getElementById('rec-topn').value = cfg.topN;
+  updateRiskLabels();
+  renderRecovery();
+  renderOutstanding();
+  showToast();
+}
+function saveURLs() {
+  cfg.recUrl = document.getElementById('cfg-rec-url').value.trim();
+  cfg.outUrl = document.getElementById('cfg-out-url').value.trim();
+  localStorage.setItem('fpCfg', JSON.stringify(cfg));
+  loadFromURLs();
+  showToast();
+}
+function populateConfigFields() {
+  document.getElementById('cfg-high-before').value = cfg.highBefore;
+  document.getElementById('cfg-med-before').value  = cfg.medBefore;
+  document.getElementById('cfg-proc-from').value   = cfg.procFrom;
+  document.getElementById('cfg-topn').value        = cfg.topN;
+  document.getElementById('cfg-currency').value    = cfg.currency;
+  document.getElementById('cfg-theme').value       = cfg.theme;
+  if (cfg.recUrl) document.getElementById('cfg-rec-url').value = cfg.recUrl;
+  if (cfg.outUrl) document.getElementById('cfg-out-url').value = cfg.outUrl;
+}
+
+// ─── THEME ────────────────────────────────────────────────────────────────────
+let isDark = true;
+function applyTheme() {
+  isDark = cfg.theme !== 'light';
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('theme-label').textContent = isDark ? 'Dark' : 'Light';
+  redrawCharts();
+}
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('theme-label').textContent = isDark ? 'Dark' : 'Light';
+  cfg.theme = isDark ? 'dark' : 'light';
+  localStorage.setItem('fpCfg', JSON.stringify(cfg));
+  redrawCharts();
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  event.target.classList.add('active');
+}
+function showSetup() {
+  document.getElementById('setup-recovery').style.display = '';
+  document.getElementById('recovery-dash').style.display = 'none';
+}
+function hidSetup() {
+  document.getElementById('setup-recovery').style.display = 'none';
+  document.getElementById('recovery-dash').style.display = '';
+}
+
+// ─── DATA LOADING ─────────────────────────────────────────────────────────────
+function loadFromURLs() {
+  const recUrl = document.getElementById('recovery-url')?.value.trim() || cfg.recUrl;
+  const outUrl = document.getElementById('outstanding-url')?.value.trim() || cfg.outUrl;
+  if (!recUrl && !outUrl) { showSetup(); return; }
+  cfg.recUrl = recUrl; cfg.outUrl = outUrl;
+  localStorage.setItem('fpCfg', JSON.stringify(cfg));
+
+  const loadCSV = (url, cb) => {
+    Papa.parse(url, { download: true, header: true, skipEmptyLines: true, complete: r => cb(r.data), error: () => cb([]) });
+  };
+  if (recUrl) loadCSV(recUrl, d => { recoveryData = d; initRecovery(); hidSetup(); });
+  if (outUrl) loadCSV(outUrl, d => { outstandingData = d; initOutstanding(); });
+}
+
+// ─── DEMO DATA ────────────────────────────────────────────────────────────────
+function loadDemo() {
+  const months = ['2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
+  const clients = ['Al Futtaim Group','Emirates NBD','Mashreq Bank','ADNOC','Emaar Properties','Etisalat','Dubai Holdings','Majid Al Futtaim','Abu Dhabi Commercial Bank','Flydubai','Air Arabia','DP World','Jumeirah Group','RAK Ceramics','Aldar Properties'];
+  const banks = ['Emirates NBD','FAB','ADCB','Mashreq','RAKBANK'];
+  recoveryData = [];
+  for (let i=0;i<200;i++) {
+    const m = months[Math.floor(Math.random()*months.length)];
+    const [yr,mo] = m.split('-');
+    const day = String(Math.floor(Math.random()*28)+1).padStart(2,'0');
+    recoveryData.push({
+      'Client / Account Name': clients[Math.floor(Math.random()*clients.length)],
+      'LPO #': 'LPO-' + (1000+i),
+      'Invoice Date': `${yr}-${mo}-01`,
+      'Invoice #': 'INV-' + (5000+i),
+      'Invoice Amount': (Math.random()*200000+10000).toFixed(2),
+      'Amount Recovered': (Math.random()*150000+5000).toFixed(2),
+      'Recovery Date': `${yr}-${mo}-${day}`,
+      'Bank': banks[Math.floor(Math.random()*banks.length)],
+      'Remarks': '',
+      'DateFormated': `${day}/${mo}/${yr}`
+    });
+  }
+  const outClients = clients.slice(0,12);
+  const sales = ['Ahmed Al Mansoori','Sara Khan','Ravi Patel','Fatima Al Zaabi','John Smith'];
+  const statuses = ['Pending','Follow Up','Disputed','Under Review','Paid'];
+  outstandingData = [];
+  const outMonths = ['2025-06','2025-08','2025-10','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
+  for (let i=0;i<80;i++) {
+    const m = outMonths[Math.floor(Math.random()*outMonths.length)];
+    const [yr,mo] = m.split('-');
+    const day = String(Math.floor(Math.random()*28)+1).padStart(2,'0');
+    const lpoVal = (Math.random()*300000+20000).toFixed(2);
+    const drAmt  = (parseFloat(lpoVal) * (0.3+Math.random()*0.7)).toFixed(2);
+    outstandingData.push({
+      'Customer Name': outClients[Math.floor(Math.random()*outClients.length)],
+      'Invoice Date': `${yr}-${mo}-${day}`,
+      'Invoice #': 'INV-' + (8000+i),
+      'LPO #': 'LPO-' + (2000+i),
+      'LPO Value': lpoVal,
+      '%age': (Math.random()*100).toFixed(1),
+      'Dr': drAmt,
+      'Sales Person': sales[Math.floor(Math.random()*sales.length)],
+      'Status / Remarks': statuses[Math.floor(Math.random()*statuses.length)],
+      'Date Formated': `${day}/${mo}/${yr}`,
+      'Status': statuses[Math.floor(Math.random()*statuses.length)]
+    });
+  }
+  initRecovery();
+  initOutstanding();
+  hidSetup();
+}
+
+// ─── RECOVERY INIT ────────────────────────────────────────────────────────────
+function initRecovery() {
+  const dates = recoveryData.map(r => parseRecoveryDate(r)).filter(Boolean);
+  const years  = [...new Set(dates.map(d => d.getFullYear()))].sort((a,b)=>b-a);
+  const selYear  = document.getElementById('rec-year');
+  const selMonth = document.getElementById('rec-month');
+  selYear.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+  const now = new Date();
+  selYear.value = now.getFullYear();
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  selMonth.innerHTML = monthNames.map((m,i) => `<option value="${i+1}">${m}</option>`).join('');
+  selMonth.value = now.getMonth() + 1;
+  document.getElementById('rec-topn').value = cfg.topN;
+  renderRecovery();
+}
+
+function parseRecoveryDate(r) {
+  const raw = r['Recovery Date'] || r['DateFormated'] || '';
+  if (!raw) return null;
+  const parts = raw.split(/[-\/]/);
+  if (parts.length === 3) {
+    if (parts[0].length === 4) return new Date(+parts[0], +parts[1]-1, +parts[2]);
+    if (parts[2].length === 4) return new Date(+parts[2], +parts[1]-1, +parts[0]);
+  }
+  const d = new Date(raw);
+  return isNaN(d) ? null : d;
+}
+
+function renderRecovery() {
+  const month = parseInt(document.getElementById('rec-month').value);
+  const year  = parseInt(document.getElementById('rec-year').value);
+  const topN  = parseInt(document.getElementById('rec-topn').value) || 10;
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  const filtered = recoveryData.filter(r => {
+    const d = parseRecoveryDate(r); if (!d) return false;
+    return d.getMonth()+1 === month && d.getFullYear() === year;
+  });
+
+  // Aggregate by customer
+  const map = {};
+  filtered.forEach(r => {
+    const name = r['Client / Account Name'] || 'Unknown';
+    const amt  = parseFloat(r['Amount Recovered']) || 0;
+    const bank = r['Bank'] || '—';
+    if (!map[name]) map[name] = { amt: 0, count: 0, bank };
+    map[name].amt   += amt;
+    map[name].count += 1;
+  });
+  const sorted = Object.entries(map).sort((a,b)=>b[1].amt - a[1].amt).slice(0, topN);
+
+  // KPIs
+  const total = filtered.reduce((s,r) => s + (parseFloat(r['Amount Recovered'])||0), 0);
+  const count = filtered.length;
+  document.getElementById('kpi-total').textContent = fmtAmt(total);
+  document.getElementById('kpi-period').textContent = `${monthNames[month-1]} ${year}`;
+  document.getElementById('kpi-count').textContent  = count;
+  document.getElementById('kpi-avg').textContent    = count ? fmtAmt(total/count) : '—';
+  if (sorted.length) {
+    document.getElementById('kpi-top-name').textContent = sorted[0][0].length > 18 ? sorted[0][0].slice(0,16)+'…' : sorted[0][0];
+    document.getElementById('kpi-top-amt').textContent  = fmtAmt(sorted[0][1].amt);
+  }
+  document.getElementById('table-heading').textContent = `Top ${Math.min(topN, sorted.length)} Customers — ${monthNames[month-1]} ${year}`;
+
+  // Colors
+  const colors = genColors(sorted.length);
+
+  // Bar chart
+  const labels = sorted.map(([n]) => n.length > 16 ? n.slice(0,14)+'…' : n);
+  const values = sorted.map(([,v]) => v.amt);
+  destroyChart(barChartInst);
+  barChartInst = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 6, borderSkipped: false }] },
+    options: chartOpts('bar')
+  });
+
+  // Donut chart
+  destroyChart(donutChartInst);
+  donutChartInst = new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }] },
+    options: chartOpts('donut')
+  });
+
+  // Table
+  const tbody = document.getElementById('rec-tbody');
+  tbody.innerHTML = sorted.map(([name, v], i) => `
+    <tr>
+      <td class="rank">#${i+1}</td>
+      <td>${name}</td>
+      <td class="amount-cell">${fmtAmt(v.amt)}</td>
+      <td>${v.count}</td>
+      <td>${v.bank}</td>
+    </tr>
+  `).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px">No data for ${monthNames[month-1]} ${year}</td></tr>`;
+}
+
+// ─── OUTSTANDING ─────────────────────────────────────────────────────────────
+function initOutstanding() {
+  // Populate sales person filter
+  const sales = [...new Set(outstandingData.map(r => r['Sales Person']).filter(Boolean))].sort();
+  document.getElementById('out-sales').innerHTML = '<option value="">All</option>' + sales.map(s=>`<option>${s}</option>`).join('');
+  const statuses = [...new Set(outstandingData.map(r => r['Status'] || r['Status / Remarks']).filter(Boolean))].sort();
+  document.getElementById('out-status').innerHTML = '<option value="">All</option>' + statuses.map(s=>`<option>${s}</option>`).join('');
+  updateRiskLabels();
+  renderOutstanding();
+}
+
+function getRisk(r) {
+  const raw = r['Invoice Date'] || '';
+  if (!raw) return 'processing';
+  const parts = raw.split(/[-\/]/);
+  let d;
+  if (parts.length === 3) {
+    if (parts[0].length === 4) d = new Date(+parts[0], +parts[1]-1, 1);
+    else d = new Date(+parts[2], +parts[1]-1, 1);
+  } else d = new Date(raw);
+  if (isNaN(d)) return 'processing';
+  const ym = d.getFullYear() * 100 + (d.getMonth()+1);
+  const [hy, hm] = cfg.highBefore.split('-').map(Number);
+  const [my2,mm] = cfg.medBefore.split('-').map(Number);
+  const highCut = hy*100+hm, medCut = my2*100+mm;
+  if (ym < highCut) return 'high';
+  if (ym < medCut)  return 'medium';
+  return 'processing';
+}
+
+function updateRiskLabels() {
+  const hb = cfg.highBefore, mb = cfg.medBefore;
+  document.getElementById('out-kpi-high-label').textContent  = `Before ${fmtMonth(hb)}`;
+  document.getElementById('out-kpi-med-label').textContent   = `${fmtMonth(hb)} – ${fmtMonth(mb)}`;
+  document.getElementById('out-kpi-proc-label').textContent  = `From ${fmtMonth(mb)}`;
+}
+
+function fmtMonth(ym) {
+  if (!ym) return '';
+  const [y,m] = ym.split('-');
+  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1] + ' ' + y;
+}
+
+function renderOutstanding() {
+  const search  = (document.getElementById('out-search')?.value||'').toLowerCase();
+  const riskF   = document.getElementById('out-risk')?.value||'';
+  const salesF  = document.getElementById('out-sales')?.value||'';
+  const statusF = document.getElementById('out-status')?.value||'';
+
+  let rows = outstandingData.filter(r => {
+    const name = (r['Customer Name']||'').toLowerCase();
+    const inv  = (r['Invoice #']||'').toLowerCase();
+    if (search && !name.includes(search) && !inv.includes(search)) return false;
+    const risk = getRisk(r);
+    if (riskF && risk !== riskF) return false;
+    if (salesF && r['Sales Person'] !== salesF) return false;
+    const st = r['Status'] || r['Status / Remarks'] || '';
+    if (statusF && st !== statusF) return false;
+    return true;
+  });
+
+  // KPIs
+  const total = rows.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0);
+  const high  = rows.filter(r=>getRisk(r)==='high');
+  const med   = rows.filter(r=>getRisk(r)==='medium');
+  const proc  = rows.filter(r=>getRisk(r)==='processing');
+  document.getElementById('out-kpi-total').textContent = fmtAmt(total);
+  document.getElementById('out-kpi-high').textContent  = `${high.length} (${fmtAmt(high.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0))})`;
+  document.getElementById('out-kpi-med').textContent   = `${med.length} (${fmtAmt(med.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0))})`;
+  document.getElementById('out-kpi-proc').textContent  = `${proc.length} (${fmtAmt(proc.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0))})`;
+
+  document.getElementById('out-count').textContent = `${rows.length} invoices`;
+
+  // Risk donut
+  destroyChart(riskDonutInst);
+  riskDonutInst = new Chart(document.getElementById('riskDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: ['High Risk','Medium Risk','Processing'],
+      datasets: [{
+        data: [
+          high.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0),
+          med.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0),
+          proc.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0)
+        ],
+        backgroundColor: ['rgba(255,107,107,0.85)','rgba(255,201,77,0.85)','rgba(0,212,170,0.85)'],
+        borderWidth: 0, hoverOffset: 6
+      }]
+    },
+    options: chartOpts('donut')
+  });
+
+  // Top customer bar
+  const custMap = {};
+  rows.forEach(r=>{
+    const n = r['Customer Name']||'Unknown';
+    custMap[n] = (custMap[n]||0) + (parseFloat(r['Dr'])||0);
+  });
+  const topCust = Object.entries(custMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  destroyChart(outBarInst);
+  outBarInst = new Chart(document.getElementById('outBar'), {
+    type: 'bar',
+    data: {
+      labels: topCust.map(([n])=>n.length>14?n.slice(0,12)+'…':n),
+      datasets: [{ data: topCust.map(([,v])=>v), backgroundColor: genColors(topCust.length), borderRadius:6, borderSkipped:false }]
+    },
+    options: chartOpts('bar')
+  });
+
+  // Table
+  const tbody = document.getElementById('out-tbody');
+  tbody.innerHTML = rows.map(r => {
+    const risk = getRisk(r);
+    const riskBadge = {
+      high:   `<span class="risk risk-high"><span class="risk-dot"></span>High Risk</span>`,
+      medium: `<span class="risk risk-medium"><span class="risk-dot"></span>Medium Risk</span>`,
+      processing: `<span class="risk risk-processing"><span class="risk-dot"></span>Processing</span>`
+    }[risk];
+    const st = r['Status'] || r['Status / Remarks'] || '—';
+    const stClass = st.toLowerCase().includes('paid') ? 'status-paid' : st.toLowerCase().includes('pending')||st.toLowerCase().includes('follow') ? 'status-pending' : 'status-other';
+    return `<tr>
+      <td>${r['Customer Name']||'—'}</td>
+      <td style="color:var(--muted)">${r['Invoice #']||'—'}</td>
+      <td>${r['Invoice Date']||'—'}</td>
+      <td style="color:var(--muted)">${r['LPO #']||'—'}</td>
+      <td class="amount-cell">${fmtAmt(parseFloat(r['Dr'])||0)}</td>
+      <td>${r['Sales Person']||'—'}</td>
+      <td>${riskBadge}</td>
+      <td><span class="status ${stClass}">${st}</span></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">No invoices match the current filters</td></tr>`;
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function fmtAmt(n) {
+  return cfg.currency + ' ' + Math.round(n).toLocaleString();
+}
+function destroyChart(c) { if (c) c.destroy(); }
+function redrawCharts() {
+  if (recoveryData.length)   renderRecovery();
+  if (outstandingData.length) renderOutstanding();
+}
+function showToast() {
+  const t = document.getElementById('toast');
+  t.style.display = 'block';
+  setTimeout(()=>{ t.style.display='none'; }, 2500);
+}
+
+function genColors(n) {
+  const palette = [
+    '#6c63ff','#00d4aa','#ffc94d','#ff6b6b','#4ecdc4',
+    '#a29bfe','#55efc4','#fdcb6e','#e17055','#74b9ff',
+    '#fd79a8','#00b894','#e84393','#0984e3','#6c5ce7'
+  ];
+  return Array.from({length:n},(_,i)=>palette[i%palette.length]);
+}
+
+function chartOpts(type) {
+  const textColor = getComputedStyle(document.body).getPropertyValue('--muted').trim() || '#7b82a0';
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  if (type === 'donut') {
+    return {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: {
+        legend: { position: 'right', labels: { color: textColor, font: { size: 11 }, padding: 10, boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => ' ' + fmtAmt(ctx.raw) } }
+      }
+    };
+  }
+  return {
+    responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ' ' + fmtAmt(ctx.raw) } }
+    },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { color: textColor, font:{size:10}, callback: v => (v>=1000000?Math.round(v/1000000)+'M':v>=1000?Math.round(v/1000)+'K':v) } },
+      y: { grid: { display: false }, ticks: { color: textColor, font:{size:11} } }
+    }
+  };
+}
+</script>
+</body>
+</html>
