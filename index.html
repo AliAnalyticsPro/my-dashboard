@@ -694,6 +694,80 @@ function loadDemo() {
   hidSetup();
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// 🔧 FIX 1: IMPROVED DATE PARSING - Handles ALL common date formats
+// ═══════════════════════════════════════════════════════════════════════════
+function parseRecoveryDate(r) {
+  // Try multiple possible date fields
+  let raw = r['Recovery Date'] || r['DateFormated'] || r['Invoice Date'] || '';
+  if (!raw) return null;
+  
+  raw = raw.toString().trim();
+  
+  // Handle DD/MM/YYYY or DD-MM-YYYY
+  if (raw.includes('/') || raw.includes('-')) {
+    let parts = raw.split(/[-\/]/);
+    if (parts.length === 3) {
+      // Check if first part is year (YYYY/MM/DD)
+      if (parts[0].length === 4) {
+        return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      } else {
+        // Assume DD/MM/YYYY
+        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      }
+    }
+  }
+  
+  // Try standard Date parsing
+  let d = new Date(raw);
+  if (!isNaN(d)) return d;
+  
+  return null;
+}
+
+// For Outstanding sheet date parsing
+function parseOutstandingDate(r) {
+  let raw = r['Invoice Date'] || '';
+  if (!raw) return null;
+  
+  raw = raw.toString().trim();
+  
+  // Handle DD/MM/YYYY or DD-MM-YYYY
+  if (raw.includes('/') || raw.includes('-')) {
+    let parts = raw.split(/[-\/]/);
+    if (parts.length === 3) {
+      // Check if first part is year (YYYY/MM/DD)
+      if (parts[0].length === 4) {
+        return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      } else {
+        // Assume DD/MM/YYYY
+        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      }
+    }
+  }
+  
+  let d = new Date(raw);
+  return isNaN(d) ? null : d;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 🔧 FIX 2: IMPROVED AMOUNT PARSING - Handles commas in numbers
+// ═══════════════════════════════════════════════════════════════════════════
+function parseAmount(value) {
+  if (!value) return 0;
+  if (typeof value === 'number') return value;
+  
+  // Convert to string, remove commas, remove currency symbols
+  let str = String(value).replace(/,/g, '').replace(/AED\s*/gi, '').replace(/\$/g, '');
+  
+  // Extract the first number found (handles "44,625.00" or "44")
+  let match = str.match(/[\d.]+/);
+  if (match) {
+    return parseFloat(match[0]) || 0;
+  }
+  return 0;
+}
+
 // ─── RECOVERY INIT ────────────────────────────────────────────────────────────
 function initRecovery() {
   const dates = recoveryData.map(r => parseRecoveryDate(r)).filter(Boolean);
@@ -708,18 +782,6 @@ function initRecovery() {
   selMonth.value = now.getMonth() + 1;
   document.getElementById('rec-topn').value = cfg.topN;
   renderRecovery();
-}
-
-function parseRecoveryDate(r) {
-  const raw = r['Recovery Date'] || r['DateFormated'] || '';
-  if (!raw) return null;
-  const parts = raw.split(/[-\/]/);
-  if (parts.length === 3) {
-    if (parts[0].length === 4) return new Date(+parts[0], +parts[1]-1, +parts[2]);
-    if (parts[2].length === 4) return new Date(+parts[2], +parts[1]-1, +parts[0]);
-  }
-  const d = new Date(raw);
-  return isNaN(d) ? null : d;
 }
 
 function renderRecovery() {
@@ -737,7 +799,7 @@ function renderRecovery() {
   const map = {};
   filtered.forEach(r => {
     const name = r['Client / Account Name'] || 'Unknown';
-    const amt  = parseFloat(r['Amount Recovered']) || 0;
+    const amt  = parseAmount(r['Amount Recovered']);
     const bank = r['Bank'] || '—';
     if (!map[name]) map[name] = { amt: 0, count: 0, bank };
     map[name].amt   += amt;
@@ -746,7 +808,7 @@ function renderRecovery() {
   const sorted = Object.entries(map).sort((a,b)=>b[1].amt - a[1].amt).slice(0, topN);
 
   // KPIs
-  const total = filtered.reduce((s,r) => s + (parseFloat(r['Amount Recovered'])||0), 0);
+  const total = filtered.reduce((s,r) => s + parseAmount(r['Amount Recovered']), 0);
   const count = filtered.length;
   document.getElementById('kpi-total').textContent = fmtAmt(total);
   document.getElementById('kpi-period').textContent = `${monthNames[month-1]} ${year}`;
@@ -788,7 +850,7 @@ function renderRecovery() {
       <td class="amount-cell">${fmtAmt(v.amt)}</td>
       <td>${v.count}</td>
       <td>${v.bank}</td>
-    </tr>
+    </table>
   `).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px">No data for ${monthNames[month-1]} ${year}</td></tr>`;
 }
 
@@ -804,15 +866,9 @@ function initOutstanding() {
 }
 
 function getRisk(r) {
-  const raw = r['Invoice Date'] || '';
-  if (!raw) return 'processing';
-  const parts = raw.split(/[-\/]/);
-  let d;
-  if (parts.length === 3) {
-    if (parts[0].length === 4) d = new Date(+parts[0], +parts[1]-1, 1);
-    else d = new Date(+parts[2], +parts[1]-1, 1);
-  } else d = new Date(raw);
-  if (isNaN(d)) return 'processing';
+  const d = parseOutstandingDate(r);
+  if (!d) return 'processing';
+  
   const ym = d.getFullYear() * 100 + (d.getMonth()+1);
   const [hy, hm] = cfg.highBefore.split('-').map(Number);
   const [my2,mm] = cfg.medBefore.split('-').map(Number);
@@ -853,15 +909,16 @@ function renderOutstanding() {
     return true;
   });
 
-  // KPIs
-  const total = rows.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0);
+  // KPIs - 🔧 FIXED: Use parseAmount for Dr column
+  const total = rows.reduce((s,r)=> s + parseAmount(r['Dr']), 0);
   const high  = rows.filter(r=>getRisk(r)==='high');
   const med   = rows.filter(r=>getRisk(r)==='medium');
   const proc  = rows.filter(r=>getRisk(r)==='processing');
+  
   document.getElementById('out-kpi-total').textContent = fmtAmt(total);
-  document.getElementById('out-kpi-high').textContent  = `${high.length} (${fmtAmt(high.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0))})`;
-  document.getElementById('out-kpi-med').textContent   = `${med.length} (${fmtAmt(med.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0))})`;
-  document.getElementById('out-kpi-proc').textContent  = `${proc.length} (${fmtAmt(proc.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0))})`;
+  document.getElementById('out-kpi-high').textContent  = `${high.length} (${fmtAmt(high.reduce((s,r)=> s + parseAmount(r['Dr']), 0))})`;
+  document.getElementById('out-kpi-med').textContent   = `${med.length} (${fmtAmt(med.reduce((s,r)=> s + parseAmount(r['Dr']), 0))})`;
+  document.getElementById('out-kpi-proc').textContent  = `${proc.length} (${fmtAmt(proc.reduce((s,r)=> s + parseAmount(r['Dr']), 0))})`;
 
   document.getElementById('out-count').textContent = `${rows.length} invoices`;
 
@@ -873,9 +930,9 @@ function renderOutstanding() {
       labels: ['High Risk','Medium Risk','Processing'],
       datasets: [{
         data: [
-          high.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0),
-          med.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0),
-          proc.reduce((s,r)=>s+(parseFloat(r['Dr'])||0),0)
+          high.reduce((s,r)=> s + parseAmount(r['Dr']), 0),
+          med.reduce((s,r)=> s + parseAmount(r['Dr']), 0),
+          proc.reduce((s,r)=> s + parseAmount(r['Dr']), 0)
         ],
         backgroundColor: ['rgba(255,107,107,0.85)','rgba(255,201,77,0.85)','rgba(0,212,170,0.85)'],
         borderWidth: 0, hoverOffset: 6
@@ -884,11 +941,11 @@ function renderOutstanding() {
     options: chartOpts('donut')
   });
 
-  // Top customer bar
+  // Top customer bar - 🔧 FIXED: Use parseAmount
   const custMap = {};
   rows.forEach(r=>{
     const n = r['Customer Name']||'Unknown';
-    custMap[n] = (custMap[n]||0) + (parseFloat(r['Dr'])||0);
+    custMap[n] = (custMap[n]||0) + parseAmount(r['Dr']);
   });
   const topCust = Object.entries(custMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
   destroyChart(outBarInst);
@@ -901,7 +958,7 @@ function renderOutstanding() {
     options: chartOpts('bar')
   });
 
-  // Table
+  // Table - 🔧 FIXED: Use parseAmount for Dr column
   const tbody = document.getElementById('out-tbody');
   tbody.innerHTML = rows.map(r => {
     const risk = getRisk(r);
@@ -917,7 +974,7 @@ function renderOutstanding() {
       <td style="color:var(--muted)">${r['Invoice #']||'—'}</td>
       <td>${r['Invoice Date']||'—'}</td>
       <td style="color:var(--muted)">${r['LPO #']||'—'}</td>
-      <td class="amount-cell">${fmtAmt(parseFloat(r['Dr'])||0)}</td>
+      <td class="amount-cell">${fmtAmt(parseAmount(r['Dr']))}</td>
       <td>${r['Sales Person']||'—'}</td>
       <td>${riskBadge}</td>
       <td><span class="status ${stClass}">${st}</span></td>
