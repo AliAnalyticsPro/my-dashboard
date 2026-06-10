@@ -106,8 +106,8 @@
     border: 1px solid var(--border);
     border-radius: 24px;
     padding: 48px;
-    max-width: 600px;
-    margin: 80px auto;
+    max-width: 700px;
+    margin: 40px auto;
     text-align: center;
   }
 
@@ -320,67 +320,11 @@
     z-index: 1000;
   }
 
-  @media (max-width: 900px) {
-    .kpi-grid { grid-template-columns: 1fr 1fr; }
-    .charts-grid { grid-template-columns: 1fr; }
-    .container { padding: 16px; }
-  }
-</style>
-</head>
-<!-- ============================================================ -->
-<!-- AUTHENTICATION SYSTEM -->
-<!-- ============================================================ -->
-<style>
-  #loginOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.95);
-    z-index: 9999;
+  /* User Indicator */
+  .user-indicator {
     display: flex;
     align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(8px);
-  }
-  
-  .login-card {
-    background: var(--surface);
-    padding: 40px;
-    border-radius: 24px;
-    width: 380px;
-    text-align: center;
-    border: 1px solid var(--border);
-    animation: fadeInUp 0.4s ease;
-  }
-  
-  .login-input {
-    width: 100%;
-    padding: 14px;
-    margin-bottom: 16px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: var(--text);
-    font-size: 14px;
-  }
-  
-  .login-input:focus {
-    outline: none;
-    border-color: #8b5cf6;
-  }
-  
-  .login-btn {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 14px;
+    gap: 12px;
   }
   
   .user-badge {
@@ -402,170 +346,35 @@
     color: var(--text-muted);
     font-size: 12px;
   }
-</style>
 
-<div id="loginOverlay">
-  <div class="login-card">
+  .config-status {
+    margin-top: 16px;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  @media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
+    .container { padding: 16px; }
+    .navbar { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+    .nav-buttons { order: 3; width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body class="dark">
+
+<!-- Login Overlay -->
+<div id="loginOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+  <div style="background: var(--surface); padding: 40px; border-radius: 24px; width: 380px; text-align: center; border: 1px solid var(--border);">
     <h2 style="margin-bottom: 8px;">🔐 Finance Pulse</h2>
     <p style="color: var(--text-muted); margin-bottom: 28px; font-size: 13px;">Secure Dashboard Access</p>
-    
-    <input type="text" id="loginUser" class="login-input" placeholder="Username" autocomplete="off">
-    <input type="password" id="loginPass" class="login-input" placeholder="Password">
-    
-    <button class="login-btn" onclick="authenticate()">Login →</button>
-    
-    <div style="margin-top: 20px; font-size: 11px; color: var(--text-muted);">
-      <p>Demo: admin / admin123</p>
-    </div>
-    
+    <input type="text" id="loginUser" placeholder="Username" style="width: 100%; padding: 14px; margin-bottom: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 14px;">
+    <input type="password" id="loginPass" placeholder="Password" style="width: 100%; padding: 14px; margin-bottom: 20px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 14px;">
+    <button onclick="authenticate()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer;">Login →</button>
     <p id="loginMsg" style="color: #ef4444; margin-top: 16px; font-size: 12px; display: none;"></p>
   </div>
 </div>
-
-<script>
-// ============================================================
-// AUTHENTICATION CONFIGURATION
-// ============================================================
-const AUTH_CONFIG = {
-  // Change these credentials
-  admin: { password: "admin123", role: "Administrator", canEdit: true },
-  manager: { password: "manager456", role: "Finance Manager", canEdit: true },
-  viewer: { password: "viewer789", role: "Viewer", canEdit: false }
-};
-
-// Session timeout in minutes (default: 30)
-const SESSION_TIMEOUT_MINUTES = 30;
-
-// ============================================================
-// AUTHENTICATION FUNCTIONS
-// ============================================================
-let authTimeout;
-
-function authenticate() {
-  let username = document.getElementById('loginUser').value.trim();
-  let password = document.getElementById('loginPass').value;
-  let msgEl = document.getElementById('loginMsg');
-  
-  if (!username || !password) {
-    msgEl.textContent = 'Please enter username and password';
-    msgEl.style.display = 'block';
-    return;
-  }
-  
-  if (AUTH_CONFIG[username] && AUTH_CONFIG[username].password === password) {
-    // Login successful
-    let userData = {
-      username: username,
-      role: AUTH_CONFIG[username].role,
-      canEdit: AUTH_CONFIG[username].canEdit,
-      loginTime: new Date().toISOString()
-    };
-    
-    localStorage.setItem('financeAuth', JSON.stringify(userData));
-    document.getElementById('loginOverlay').style.display = 'none';
-    
-    // Add user indicator to navbar
-    addUserIndicator(userData);
-    
-    showToast(`Welcome back, ${userData.role}!`);
-    startInactivityTimer();
-  } else {
-    msgEl.textContent = 'Invalid username or password';
-    msgEl.style.display = 'block';
-  }
-}
-
-function addUserIndicator(userData) {
-  let navbar = document.querySelector('.navbar');
-  let existingIndicator = document.querySelector('.user-indicator');
-  if (existingIndicator) existingIndicator.remove();
-  
-  let indicator = document.createElement('div');
-  indicator.className = 'user-indicator';
-  indicator.style.display = 'flex';
-  indicator.style.alignItems = 'center';
-  indicator.style.gap = '12px';
-  
-  indicator.innerHTML = `
-    <div class="user-badge">
-      <span>👤</span>
-      <span>${userData.role}</span>
-    </div>
-    <button class="logout-btn" onclick="logout()">Logout</button>
-  `;
-  
-  navbar.appendChild(indicator);
-  
-  // If user is viewer, disable edit features
-  if (!userData.canEdit) {
-    document.querySelectorAll('.btn-primary, .btn-secondary, .control-select').forEach(el => {
-      if (el.tagName === 'BUTTON' && !el.classList.contains('logout-btn')) {
-        el.disabled = true;
-        el.style.opacity = '0.5';
-        el.style.cursor = 'not-allowed';
-      }
-    });
-  }
-}
-
-function logout() {
-  localStorage.removeItem('financeAuth');
-  location.reload();
-}
-
-function startInactivityTimer() {
-  if (authTimeout) clearTimeout(authTimeout);
-  authTimeout = setTimeout(() => {
-    logout();
-    showToast('Session expired due to inactivity');
-  }, SESSION_TIMEOUT_MINUTES * 60 * 1000);
-}
-
-function resetInactivityTimer() {
-  if (localStorage.getItem('financeAuth')) {
-    if (authTimeout) clearTimeout(authTimeout);
-    authTimeout = setTimeout(() => {
-      logout();
-    }, SESSION_TIMEOUT_MINUTES * 60 * 1000);
-  }
-}
-
-// Check existing session on page load
-function checkSession() {
-  let savedAuth = localStorage.getItem('financeAuth');
-  if (savedAuth) {
-    try {
-      let userData = JSON.parse(savedAuth);
-      if (userData.loginTime) {
-        document.getElementById('loginOverlay').style.display = 'none';
-        addUserIndicator(userData);
-        startInactivityTimer();
-      } else {
-        localStorage.removeItem('financeAuth');
-      }
-    } catch(e) {
-      localStorage.removeItem('financeAuth');
-    }
-  }
-}
-
-// Track user activity
-document.addEventListener('mousemove', resetInactivityTimer);
-document.addEventListener('keydown', resetInactivityTimer);
-document.addEventListener('click', resetInactivityTimer);
-
-// Enter key login
-document.getElementById('loginPass').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') authenticate();
-});
-document.getElementById('loginUser').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') document.getElementById('loginPass').focus();
-});
-
-// Initialize
-checkSession();
-</script>
-<body class="dark">
 
 <nav class="navbar">
   <div class="logo">Finance<span style="color:#8b5cf6">Pulse</span></div>
@@ -582,10 +391,10 @@ checkSession();
   <div id="recoveryPage" class="page active">
     <div id="recoverySetup" style="display: block;">
       <div class="setup-card">
-        <h2>📊 Connect Your Google Sheet</h2>
-        <p>Paste the published CSV URL from your Recovery tab</p>
+        <h2>📊 Connect Your Recovery Data</h2>
+        <p style="margin-bottom: 20px;">Paste the published CSV URL from your Recovery tab</p>
         <input type="text" id="recoveryCsvUrl" class="setup-input" placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=...">
-        <button class="btn-primary" onclick="loadRecoveryData()">Load Data</button>
+        <button class="btn-primary" onclick="loadRecoveryData()">Load Recovery Data</button>
       </div>
     </div>
 
@@ -593,7 +402,7 @@ checkSession();
       <div class="controls-bar">
         <select id="recMonth" class="control-select"></select>
         <select id="recYear" class="control-select"></select>
-        <button class="btn-primary" onclick="renderRecovery()" style="padding: 8px 20px;">Apply</button>
+        <button class="btn-primary" onclick="renderRecovery()" style="padding: 8px 20px;">Apply Filter</button>
       </div>
       <div class="kpi-grid" id="recKpis"></div>
       <div class="charts-grid">
@@ -621,9 +430,9 @@ checkSession();
     <div id="outstandingSetup" style="display: block;">
       <div class="setup-card">
         <h2>📋 Connect Your Outstanding Data</h2>
-        <p>Paste the published CSV URL from your Outstanding tab</p>
+        <p style="margin-bottom: 20px;">Paste the published CSV URL from your Outstanding tab</p>
         <input type="text" id="outstandingCsvUrl" class="setup-input" placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=...">
-        <button class="btn-primary" onclick="loadOutstandingData()">Load Data</button>
+        <button class="btn-primary" onclick="loadOutstandingData()">Load Outstanding Data</button>
       </div>
     </div>
 
@@ -664,19 +473,39 @@ checkSession();
     <div class="setup-card" style="max-width: 700px;">
       <h2>⚙ Configuration</h2>
       <div style="text-align: left; margin-top: 24px;">
+        
         <div style="margin-bottom: 20px;">
-          <label>High Risk (invoices before)</label>
+          <label style="display: block; margin-bottom: 8px; font-weight: 500;">📊 Recovery Tab CSV URL</label>
+          <input type="text" id="configRecUrl" class="setup-input" placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=...">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 500;">📋 Outstanding Tab CSV URL</label>
+          <input type="text" id="configOutUrl" class="setup-input" placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=...">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 500;">⚠️ High Risk (invoices before)</label>
           <input type="month" id="configHighBefore" class="setup-input" value="2026-01">
         </div>
+        
         <div style="margin-bottom: 20px;">
-          <label>Medium Risk (invoices before)</label>
+          <label style="display: block; margin-bottom: 8px; font-weight: 500;">🟡 Medium Risk (invoices before)</label>
           <input type="month" id="configMedBefore" class="setup-input" value="2026-03">
         </div>
+        
         <div style="margin-bottom: 20px;">
-          <label>Currency Symbol</label>
-          <input type="text" id="configCurrency" class="setup-input" value="AED">
+          <label style="display: block; margin-bottom: 8px; font-weight: 500;">💰 Currency Symbol</label>
+          <input type="text" id="configCurrency" class="setup-input" value="AED" style="width: 100px;">
         </div>
-        <button class="btn-primary" onclick="saveConfig()">Save Settings</button>
+        
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px;">
+          <button class="btn-primary" onclick="saveAllConfig()">💾 Save All Settings</button>
+          <button class="btn-secondary" onclick="loadAndRefreshData()">🔄 Load & Refresh Data</button>
+          <button class="btn-secondary" onclick="clearSavedData()">🗑 Clear Saved Data</button>
+        </div>
+        
+        <div id="configStatus" class="config-status"></div>
       </div>
     </div>
   </div>
@@ -686,7 +515,102 @@ checkSession();
 
 <script>
 // ============================================================
-// STATE
+// AUTHENTICATION CONFIGURATION
+// ============================================================
+const AUTH_CONFIG = {
+  admin: { password: "admin123", role: "Administrator", canEdit: true },
+  manager: { password: "manager456", role: "Finance Manager", canEdit: true },
+  viewer: { password: "viewer789", role: "Viewer", canEdit: false }
+};
+
+let authTimeout;
+
+function authenticate() {
+  let username = document.getElementById('loginUser').value.trim();
+  let password = document.getElementById('loginPass').value;
+  let msgEl = document.getElementById('loginMsg');
+  
+  if (!username || !password) {
+    msgEl.textContent = 'Please enter username and password';
+    msgEl.style.display = 'block';
+    return;
+  }
+  
+  if (AUTH_CONFIG[username] && AUTH_CONFIG[username].password === password) {
+    let userData = {
+      username: username,
+      role: AUTH_CONFIG[username].role,
+      canEdit: AUTH_CONFIG[username].canEdit,
+      loginTime: new Date().toISOString()
+    };
+    localStorage.setItem('financeAuth', JSON.stringify(userData));
+    document.getElementById('loginOverlay').style.display = 'none';
+    addUserIndicator(userData);
+    showToast(`Welcome back, ${userData.role}!`);
+    startInactivityTimer();
+  } else {
+    msgEl.textContent = 'Invalid username or password';
+    msgEl.style.display = 'block';
+  }
+}
+
+function addUserIndicator(userData) {
+  let navbar = document.querySelector('.navbar');
+  let existingIndicator = document.querySelector('.user-indicator');
+  if (existingIndicator) existingIndicator.remove();
+  
+  let indicator = document.createElement('div');
+  indicator.className = 'user-indicator';
+  indicator.innerHTML = `
+    <div class="user-badge">
+      <span>👤</span>
+      <span>${userData.role}</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  `;
+  navbar.appendChild(indicator);
+  
+  if (!userData.canEdit) {
+    document.querySelectorAll('.btn-primary, .btn-secondary, .control-select').forEach(el => {
+      if (el.tagName === 'BUTTON' && !el.classList.contains('logout-btn')) {
+        el.disabled = true;
+        el.style.opacity = '0.5';
+        el.style.cursor = 'not-allowed';
+      }
+    });
+  }
+}
+
+function logout() {
+  localStorage.removeItem('financeAuth');
+  location.reload();
+}
+
+function startInactivityTimer() {
+  if (authTimeout) clearTimeout(authTimeout);
+  authTimeout = setTimeout(() => {
+    logout();
+    showToast('Session expired due to inactivity');
+  }, 30 * 60 * 1000);
+}
+
+function resetInactivityTimer() {
+  if (localStorage.getItem('financeAuth')) {
+    if (authTimeout) clearTimeout(authTimeout);
+    authTimeout = setTimeout(() => logout(), 30 * 60 * 1000);
+  }
+}
+
+document.addEventListener('mousemove', resetInactivityTimer);
+document.addEventListener('keydown', resetInactivityTimer);
+document.addEventListener('click', resetInactivityTimer);
+
+document.getElementById('loginPass')?.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') authenticate();
+});
+
+// ============================================================
+// STATE & DATA
 // ============================================================
 let recoveryData = [];
 let outstandingData = [];
@@ -694,39 +618,104 @@ let recBarChart, recDonutChart, salesBarChart, riskBarChart;
 let recCurrentPage = 1, outCurrentPage = 1;
 let itemsPerPage = 10;
 
-let config = {
-  highBefore: '2026-01',
-  medBefore: '2026-03',
+// Global config
+let globalConfig = {
+  recUrl: '', outUrl: '',
+  highBefore: '2026-01', medBefore: '2026-03',
   currency: 'AED'
 };
 
-// Load saved config
-try {
-  let saved = localStorage.getItem('financeConfig');
-  if (saved) config = { ...config, ...JSON.parse(saved) };
-  let theme = localStorage.getItem('theme');
-  if (theme === 'light') document.body.classList.add('light');
-} catch(e) {}
-
-document.getElementById('configHighBefore').value = config.highBefore;
-document.getElementById('configMedBefore').value = config.medBefore;
-document.getElementById('configCurrency').value = config.currency;
-
-function saveConfig() {
-  config.highBefore = document.getElementById('configHighBefore').value;
-  config.medBefore = document.getElementById('configMedBefore').value;
-  config.currency = document.getElementById('configCurrency').value;
-  localStorage.setItem('financeConfig', JSON.stringify(config));
-  showToast('Settings saved');
-  if (outstandingData.length) renderOutstanding();
+// ============================================================
+// PERSISTENT CONFIGURATION
+// ============================================================
+function loadSavedConfig() {
+  try {
+    let saved = localStorage.getItem('financeConfig');
+    if (saved) {
+      let config = JSON.parse(saved);
+      globalConfig = { ...globalConfig, ...config };
+      
+      if (document.getElementById('configRecUrl')) {
+        document.getElementById('configRecUrl').value = config.recUrl || '';
+        document.getElementById('configOutUrl').value = config.outUrl || '';
+        document.getElementById('recoveryCsvUrl').value = config.recUrl || '';
+        document.getElementById('outstandingCsvUrl').value = config.outUrl || '';
+        document.getElementById('configHighBefore').value = config.highBefore || '2026-01';
+        document.getElementById('configMedBefore').value = config.medBefore || '2026-03';
+        document.getElementById('configCurrency').value = config.currency || 'AED';
+      }
+      return config;
+    }
+  } catch(e) { console.log('Error loading config:', e); }
+  return null;
 }
 
-function toggleTheme() {
-  document.body.classList.toggle('light');
-  localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
-  // Redraw charts to update colors
-  if (recoveryData.length) renderRecovery();
-  if (outstandingData.length) renderOutstanding();
+function saveAllConfig() {
+  let config = {
+    recUrl: document.getElementById('configRecUrl').value,
+    outUrl: document.getElementById('configOutUrl').value,
+    highBefore: document.getElementById('configHighBefore').value,
+    medBefore: document.getElementById('configMedBefore').value,
+    currency: document.getElementById('configCurrency').value,
+    lastUpdated: new Date().toISOString()
+  };
+  
+  localStorage.setItem('financeConfig', JSON.stringify(config));
+  globalConfig = config;
+  
+  if (document.getElementById('recoveryCsvUrl')) {
+    document.getElementById('recoveryCsvUrl').value = config.recUrl;
+    document.getElementById('outstandingCsvUrl').value = config.outUrl;
+  }
+  
+  let statusEl = document.getElementById('configStatus');
+  if (statusEl) {
+    statusEl.textContent = '✅ Settings saved successfully!';
+    statusEl.style.color = '#10b981';
+    setTimeout(() => statusEl.textContent = '', 3000);
+  }
+  showToast('All settings saved!');
+}
+
+function loadAndRefreshData() {
+  let config = localStorage.getItem('financeConfig');
+  if (!config) {
+    showToast('No saved configuration found. Please save settings first.');
+    return;
+  }
+  
+  let parsed = JSON.parse(config);
+  if (parsed.recUrl) loadRecoveryDataFromUrl(parsed.recUrl);
+  if (parsed.outUrl) loadOutstandingDataFromUrl(parsed.outUrl);
+  
+  let statusEl = document.getElementById('configStatus');
+  if (statusEl) {
+    statusEl.textContent = '🔄 Loading data from saved URLs...';
+    setTimeout(() => {
+      statusEl.textContent = '✅ Data refreshed!';
+      setTimeout(() => statusEl.textContent = '', 2000);
+    }, 1000);
+  }
+}
+
+function clearSavedData() {
+  if (confirm('⚠️ This will clear all saved URLs and settings. Are you sure?')) {
+    localStorage.removeItem('financeConfig');
+    localStorage.removeItem('financeAuth');
+    
+    document.getElementById('configRecUrl').value = '';
+    document.getElementById('configOutUrl').value = '';
+    document.getElementById('recoveryCsvUrl').value = '';
+    document.getElementById('outstandingCsvUrl').value = '';
+    
+    let statusEl = document.getElementById('configStatus');
+    if (statusEl) {
+      statusEl.textContent = '🗑 All saved data cleared!';
+      statusEl.style.color = '#f59e0b';
+      setTimeout(() => statusEl.textContent = '', 3000);
+    }
+    showToast('Saved data cleared');
+  }
 }
 
 function showToast(msg) {
@@ -740,8 +729,19 @@ function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(page + 'Page').classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
+  if (event && event.target) event.target.classList.add('active');
 }
+
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+  if (recoveryData.length) renderRecovery();
+  if (outstandingData.length) renderOutstanding();
+}
+
+// Apply saved theme
+let savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') document.body.classList.add('light');
 
 // ============================================================
 // HELPERS
@@ -770,7 +770,7 @@ function parseAmount(val) {
 }
 
 function formatCurrency(amount) {
-  return config.currency + ' ' + Math.round(amount).toLocaleString();
+  return globalConfig.currency + ' ' + Math.round(amount).toLocaleString();
 }
 
 // ============================================================
@@ -779,18 +779,28 @@ function formatCurrency(amount) {
 function loadRecoveryData() {
   let url = document.getElementById('recoveryCsvUrl').value;
   if (!url) { showToast('Please enter a CSV URL'); return; }
+  
+  let savedConfig = localStorage.getItem('financeConfig');
+  let config = savedConfig ? JSON.parse(savedConfig) : {};
+  config.recUrl = url;
+  localStorage.setItem('financeConfig', JSON.stringify(config));
+  if (document.getElementById('configRecUrl')) document.getElementById('configRecUrl').value = url;
+  
+  loadRecoveryDataFromUrl(url);
+}
+
+function loadRecoveryDataFromUrl(url) {
   showToast('Loading recovery data...');
   Papa.parse(url, { download: true, header: true, complete: (res) => {
     recoveryData = res.data;
     initRecovery();
     document.getElementById('recoverySetup').style.display = 'none';
     document.getElementById('recoveryDashboard').style.display = 'block';
-    showToast('Loaded ' + recoveryData.length + ' records');
-  }, error: () => { showToast('Error loading CSV'); } });
+    showToast('Loaded ' + recoveryData.length + ' recovery records');
+  }, error: () => { showToast('Error loading recovery CSV'); } });
 }
 
 function initRecovery() {
-  // Get unique months that actually have data
   let monthSet = new Set();
   let yearSet = new Set();
   
@@ -807,10 +817,10 @@ function initRecovery() {
   
   let monthSelect = document.getElementById('recMonth');
   let yearSelect = document.getElementById('recYear');
-  
   let monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  monthSelect.innerHTML = months.map(m => `<option value="${m}">${monthNames[m-1]}</option>`).join('');
-  yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+  
+  if (months.length) monthSelect.innerHTML = months.map(m => `<option value="${m}">${monthNames[m-1]}</option>`).join('');
+  if (years.length) yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
   
   renderRecovery();
 }
@@ -826,7 +836,6 @@ function renderRecovery() {
     return d && d.getMonth()+1 === month && d.getFullYear() === year;
   });
   
-  // KPIs
   let total = filtered.reduce((s,r) => s + parseAmount(r['Amount Recovered']), 0);
   let avg = filtered.length ? total / filtered.length : 0;
   let topCustomer = filtered.reduce((best,r) => {
@@ -843,7 +852,6 @@ function renderRecovery() {
     <div class="kpi-card"><div class="kpi-label">Avg Transaction</div><div class="kpi-value">${formatCurrency(avg)}</div><div class="kpi-sub">Average recovery</div></div>
   `;
   
-  // Aggregate by customer
   let customerMap = new Map();
   filtered.forEach(r => {
     let name = r['Client / Account Name'] || r['Customer Name'] || 'Unknown';
@@ -868,7 +876,6 @@ function renderRecovery() {
     options: { responsive: true, maintainAspectRatio: true, cutout: '55%', plugins: { legend: { position: 'right', labels: { font: { size: 10 } } }, tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatCurrency(ctx.raw)}` } } } }
   });
   
-  // Pagination for table
   let totalPages = Math.ceil(sorted.length / itemsPerPage);
   let start = (recCurrentPage - 1) * itemsPerPage;
   let paginated = sorted.slice(start, start + itemsPerPage);
@@ -876,20 +883,17 @@ function renderRecovery() {
   let tbody = document.getElementById('recTableBody');
   tbody.innerHTML = paginated.map(([name, amt], i) => {
     let inv = filtered.find(r => (r['Client / Account Name'] || r['Customer Name']) === name);
-    return `<tr><td>${start + i + 1}</td><td>${name}</td><td style="font-weight:600">${formatCurrency(amt)}</td><td>${inv?.['Invoice #'] || '—'}</td><td>${inv?.['Recovery Date'] || inv?.['Invoice Date'] || '—'}</td></tr>`;
+    return `<tr><td style="color:#8b5cf6">${start + i + 1}</td><td style="font-weight:500">${name}</td><td style="font-weight:600">${formatCurrency(amt)}</td><td style="color:var(--text-muted)">${inv?.['Invoice #'] || '—'}</td><td style="color:var(--text-muted)">${inv?.['Recovery Date'] || inv?.['Invoice Date'] || '—'}</td></tr>`;
   }).join('');
   
   document.getElementById('recPagination').innerHTML = `
     <button class="page-btn" onclick="changeRecPage(${recCurrentPage-1})" ${recCurrentPage === 1 ? 'disabled' : ''}>‹ Prev</button>
-    <span style="padding: 6px 12px;">Page ${recCurrentPage} of ${totalPages}</span>
-    <button class="page-btn" onclick="changeRecPage(${recCurrentPage+1})" ${recCurrentPage === totalPages ? 'disabled' : ''}>Next ›</button>
+    <span style="padding: 6px 12px;">Page ${recCurrentPage} of ${totalPages || 1}</span>
+    <button class="page-btn" onclick="changeRecPage(${recCurrentPage+1})" ${recCurrentPage === totalPages || totalPages === 0 ? 'disabled' : ''}>Next ›</button>
   `;
 }
 
-function changeRecPage(page) {
-  recCurrentPage = page;
-  renderRecovery();
-}
+function changeRecPage(page) { recCurrentPage = page; renderRecovery(); }
 
 // ============================================================
 // OUTSTANDING FUNCTIONS
@@ -897,22 +901,33 @@ function changeRecPage(page) {
 function loadOutstandingData() {
   let url = document.getElementById('outstandingCsvUrl').value;
   if (!url) { showToast('Please enter a CSV URL'); return; }
+  
+  let savedConfig = localStorage.getItem('financeConfig');
+  let config = savedConfig ? JSON.parse(savedConfig) : {};
+  config.outUrl = url;
+  localStorage.setItem('financeConfig', JSON.stringify(config));
+  if (document.getElementById('configOutUrl')) document.getElementById('configOutUrl').value = url;
+  
+  loadOutstandingDataFromUrl(url);
+}
+
+function loadOutstandingDataFromUrl(url) {
   showToast('Loading outstanding data...');
   Papa.parse(url, { download: true, header: true, complete: (res) => {
     outstandingData = res.data;
     initOutstanding();
     document.getElementById('outstandingSetup').style.display = 'none';
     document.getElementById('outstandingDashboard').style.display = 'block';
-    showToast('Loaded ' + outstandingData.length + ' records');
-  }, error: () => { showToast('Error loading CSV'); } });
+    showToast('Loaded ' + outstandingData.length + ' outstanding records');
+  }, error: () => { showToast('Error loading outstanding CSV'); } });
 }
 
 function getRisk(dateStr) {
   let d = parseDate(dateStr);
   if (!d) return 'processing';
   let ym = d.getFullYear() * 100 + (d.getMonth()+1);
-  let high = parseInt(config.highBefore.replace('-', ''));
-  let med = parseInt(config.medBefore.replace('-', ''));
+  let high = parseInt(globalConfig.highBefore.replace('-', ''));
+  let med = parseInt(globalConfig.medBefore.replace('-', ''));
   if (ym < high) return 'high';
   if (ym < med) return 'medium';
   return 'processing';
@@ -939,19 +954,17 @@ function renderOutstanding() {
     return true;
   });
   
-  // KPIs
   let total = filtered.reduce((s,r) => s + parseAmount(r['Dr']), 0);
   let avg = filtered.length ? total / filtered.length : 0;
   let highRiskTotal = filtered.filter(r => getRisk(r['Invoice Date']) === 'high').reduce((s,r) => s + parseAmount(r['Dr']), 0);
   
   document.getElementById('outKpis').innerHTML = `
     <div class="kpi-card"><div class="kpi-label">Total Outstanding</div><div class="kpi-value">${formatCurrency(total)}</div><div class="kpi-sub">All invoices</div></div>
-    <div class="kpi-card"><div class="kpi-label">High Risk Amount</div><div class="kpi-value">${formatCurrency(highRiskTotal)}</div><div class="kpi-sub">Before ${config.highBefore}</div></div>
+    <div class="kpi-card"><div class="kpi-label">High Risk Amount</div><div class="kpi-value">${formatCurrency(highRiskTotal)}</div><div class="kpi-sub">Before ${globalConfig.highBefore}</div></div>
     <div class="kpi-card"><div class="kpi-label">Invoices Count</div><div class="kpi-value">${filtered.length}</div><div class="kpi-sub">Total open invoices</div></div>
     <div class="kpi-card"><div class="kpi-label">Average Invoice</div><div class="kpi-value">${formatCurrency(avg)}</div><div class="kpi-sub">Per transaction</div></div>
   `;
   
-  // Top 10 Sales Persons Bar Chart
   let salesMap = new Map();
   filtered.forEach(r => {
     let salesPerson = r['Sales Person'] || 'Unassigned';
@@ -967,7 +980,6 @@ function renderOutstanding() {
     options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => formatCurrency(ctx.raw) } } }, scales: { y: { beginAtZero: true, ticks: { callback: (v) => formatCurrency(v) } } } }
   });
   
-  // Risk Distribution Bar Chart (Better than donut)
   let riskData = { high: 0, medium: 0, processing: 0 };
   filtered.forEach(r => { riskData[getRisk(r['Invoice Date'])] += parseAmount(r['Dr']); });
   
@@ -978,7 +990,6 @@ function renderOutstanding() {
     options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => formatCurrency(ctx.raw) } } }, scales: { y: { beginAtZero: true, ticks: { callback: (v) => formatCurrency(v) } } } }
   });
   
-  // Pagination
   let totalPages = Math.ceil(filtered.length / itemsPerPage);
   let start = (outCurrentPage - 1) * itemsPerPage;
   let paginated = filtered.slice(start, start + itemsPerPage);
@@ -988,28 +999,43 @@ function renderOutstanding() {
     let risk = getRisk(r['Invoice Date']);
     let riskClass = risk === 'high' ? 'badge-high' : risk === 'medium' ? 'badge-medium' : 'badge-processing';
     let riskText = risk === 'high' ? 'High' : risk === 'medium' ? 'Medium' : 'Processing';
-    return `<tr>
-      <td>${r['Customer Name'] || '—'}</td>
-      <td>${r['Invoice #'] || '—'}</td>
-      <td>${r['Invoice Date'] || '—'}</td>
-      <td style="font-weight:600">${formatCurrency(parseAmount(r['Dr']))}</td>
-      <td>${r['Sales Person'] || '—'}</td>
-      <td><span class="badge ${riskClass}">${riskText}</span></td>
-      <td>${r['Status'] || '—'}</td>
-    </tr>`;
+    return `<tr><td style="font-weight:500">${r['Customer Name'] || '—'}</td><td style="color:var(--text-muted)">${r['Invoice #'] || '—'}</td><td style="color:var(--text-muted)">${r['Invoice Date'] || '—'}</td><td style="font-weight:600">${formatCurrency(parseAmount(r['Dr']))}</td><td style="color:var(--text-muted)">${r['Sales Person'] || '—'}</td><td><span class="badge ${riskClass}">${riskText}</span></td><td>${r['Status'] || '—'}</td></tr>`;
   }).join('');
   
   document.getElementById('outPagination').innerHTML = `
     <button class="page-btn" onclick="changeOutPage(${outCurrentPage-1})" ${outCurrentPage === 1 ? 'disabled' : ''}>‹ Prev</button>
-    <span style="padding: 6px 12px;">Page ${outCurrentPage} of ${totalPages}</span>
-    <button class="page-btn" onclick="changeOutPage(${outCurrentPage+1})" ${outCurrentPage === totalPages ? 'disabled' : ''}>Next ›</button>
+    <span style="padding: 6px 12px;">Page ${outCurrentPage} of ${totalPages || 1}</span>
+    <button class="page-btn" onclick="changeOutPage(${outCurrentPage+1})" ${outCurrentPage === totalPages || totalPages === 0 ? 'disabled' : ''}>Next ›</button>
   `;
 }
 
-function changeOutPage(page) {
-  outCurrentPage = page;
-  renderOutstanding();
+function changeOutPage(page) { outCurrentPage = page; renderOutstanding(); }
+
+// ============================================================
+// INITIALIZE
+// ============================================================
+function checkSession() {
+  let savedAuth = localStorage.getItem('financeAuth');
+  if (savedAuth) {
+    try {
+      let userData = JSON.parse(savedAuth);
+      if (userData.loginTime) {
+        document.getElementById('loginOverlay').style.display = 'none';
+        addUserIndicator(userData);
+        startInactivityTimer();
+      } else {
+        localStorage.removeItem('financeAuth');
+      }
+    } catch(e) { localStorage.removeItem('financeAuth'); }
+  }
 }
+
+// Load saved config and auto-load data
+let savedConfig = loadSavedConfig();
+if (savedConfig && savedConfig.recUrl) loadRecoveryDataFromUrl(savedConfig.recUrl);
+if (savedConfig && savedConfig.outUrl) loadOutstandingDataFromUrl(savedConfig.outUrl);
+
+checkSession();
 </script>
 </body>
 </html>
