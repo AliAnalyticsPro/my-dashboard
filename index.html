@@ -13,19 +13,43 @@
     box-sizing: border-box;
   }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-    background: #0a0c12;
-    color: #e8edf5;
+  /* Dark Theme (Default) */
+  body.dark {
+    --bg: #0a0c12;
+    --surface: #0f111a;
+    --surface2: #1a1e2c;
+    --border: #1e2434;
+    --text: #e8edf5;
+    --text-muted: #9ca3af;
+    --card-bg: #0f111a;
   }
 
+  /* Light Theme */
+  body.light {
+    --bg: #F1F1F1;
+    --surface: #ffffff;
+    --surface2: #ECF4E5;
+    --border: #E1E9E5;
+    --text: #1a1d2e;
+    --text-muted: #6b7280;
+    --card-bg: #ffffff;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: all 0.3s ease;
+  }
+
+  /* Navbar */
   .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 16px 32px;
-    background: #0f111a;
-    border-bottom: 1px solid #1e2434;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -48,7 +72,7 @@
     background: transparent;
     border: none;
     padding: 8px 20px;
-    color: #9ca3af;
+    color: var(--text-muted);
     font-size: 14px;
     font-weight: 500;
     border-radius: 30px;
@@ -57,13 +81,17 @@
   }
 
   .nav-btn.active {
-    background: #1e2434;
-    color: #a78bfa;
+    background: var(--surface2);
+    color: #8b5cf6;
   }
 
-  .nav-btn:hover:not(.active) {
-    background: #1a1e2c;
-    color: #e5e7eb;
+  .theme-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    color: var(--text);
   }
 
   .container {
@@ -72,9 +100,10 @@
     padding: 24px 32px;
   }
 
+  /* Setup Card */
   .setup-card {
-    background: #0f111a;
-    border: 1px solid #1e2434;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 24px;
     padding: 48px;
     max-width: 600px;
@@ -82,30 +111,15 @@
     text-align: center;
   }
 
-  .setup-card h2 {
-    margin-bottom: 12px;
-    font-size: 24px;
-  }
-
-  .setup-card p {
-    color: #9ca3af;
-    margin-bottom: 28px;
-  }
-
   .setup-input {
     width: 100%;
-    background: #1a1e2c;
-    border: 1px solid #2d3348;
+    background: var(--surface2);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 14px 18px;
-    color: #e5e7eb;
+    color: var(--text);
     margin-bottom: 16px;
     font-size: 14px;
-  }
-
-  .setup-input:focus {
-    outline: none;
-    border-color: #8b5cf6;
   }
 
   .btn-primary {
@@ -120,37 +134,38 @@
   }
 
   .btn-secondary {
-    background: #1e2434;
-    border: 1px solid #2d3348;
+    background: var(--surface2);
+    border: 1px solid var(--border);
     padding: 12px 28px;
     border-radius: 40px;
-    color: #e5e7eb;
+    color: var(--text);
     font-weight: 500;
     cursor: pointer;
-    margin: 8px;
   }
 
+  /* Controls */
   .controls-bar {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     margin-bottom: 28px;
     padding: 16px 20px;
-    background: #0f111a;
+    background: var(--surface);
     border-radius: 20px;
-    border: 1px solid #1e2434;
+    border: 1px solid var(--border);
   }
 
   .control-select {
-    background: #1a1e2c;
-    border: 1px solid #2d3348;
+    background: var(--surface2);
+    border: 1px solid var(--border);
     padding: 8px 16px;
     border-radius: 30px;
-    color: #e5e7eb;
+    color: var(--text);
     font-size: 13px;
     cursor: pointer;
   }
 
+  /* KPI Grid */
   .kpi-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -159,38 +174,39 @@
   }
 
   .kpi-card {
-    background: #0f111a;
-    border: 1px solid #1e2434;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 20px;
     padding: 20px;
     transition: all 0.2s;
   }
 
   .kpi-card:hover {
-    border-color: #8b5cf6;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
 
   .kpi-label {
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #9ca3af;
+    color: var(--text-muted);
     margin-bottom: 8px;
   }
 
   .kpi-value {
     font-size: 32px;
     font-weight: 700;
-    color: #e5e7eb;
+    color: var(--text);
   }
 
   .kpi-sub {
     font-size: 12px;
-    color: #6b7280;
+    color: var(--text-muted);
     margin-top: 8px;
   }
 
+  /* Charts Grid */
   .charts-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -199,29 +215,28 @@
   }
 
   .chart-card {
-    background: #0f111a;
-    border: 1px solid #1e2434;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 20px;
     padding: 20px;
   }
 
   .chart-title {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #9ca3af;
+    color: var(--text);
     margin-bottom: 20px;
   }
 
   canvas {
-    max-height: 280px;
+    max-height: 300px;
     width: 100%;
   }
 
+  /* Table with Pagination */
   .table-container {
-    background: #0f111a;
-    border: 1px solid #1e2434;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 20px;
     padding: 20px;
     overflow-x: auto;
@@ -235,25 +250,47 @@
   th {
     text-align: left;
     padding: 12px 16px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #9ca3af;
-    border-bottom: 1px solid #1e2434;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
   }
 
   td {
     padding: 14px 16px;
     font-size: 13px;
-    border-bottom: 1px solid #1a1e2c;
-    color: #d1d5db;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
   }
 
   tr:hover td {
-    background: #1a1e2c;
+    background: var(--surface2);
   }
 
+  .pagination {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .page-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 12px;
+  }
+
+  .page-btn.active {
+    background: #8b5cf6;
+    color: white;
+    border-color: #8b5cf6;
+  }
+
+  /* Badges */
   .badge {
     display: inline-block;
     padding: 4px 12px;
@@ -262,23 +299,21 @@
     font-weight: 600;
   }
 
-  .badge-high { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-  .badge-medium { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-  .badge-processing { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+  .badge-high { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+  .badge-medium { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+  .badge-processing { background: rgba(16, 185, 129, 0.15); color: #10b981; }
 
-  .page {
-    display: none;
-  }
+  /* Pages */
+  .page { display: none; }
+  .page.active { display: block; }
 
-  .page.active {
-    display: block;
-  }
-
+  /* Toast */
   .toast {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    background: #1e293b;
+    background: var(--surface2);
+    border: 1px solid var(--border);
     padding: 12px 24px;
     border-radius: 40px;
     font-size: 13px;
@@ -292,7 +327,7 @@
   }
 </style>
 </head>
-<body>
+<body class="dark">
 
 <nav class="navbar">
   <div class="logo">Finance<span style="color:#8b5cf6">Pulse</span></div>
@@ -301,6 +336,7 @@
     <button class="nav-btn" onclick="showPage('outstanding')">Outstanding</button>
     <button class="nav-btn" onclick="showPage('config')">Config</button>
   </div>
+  <button class="theme-btn" onclick="toggleTheme()">🌓 Light/Dark</button>
 </nav>
 
 <div class="container">
@@ -311,9 +347,7 @@
         <h2>📊 Connect Your Google Sheet</h2>
         <p>Paste the published CSV URL from your Recovery tab</p>
         <input type="text" id="recoveryCsvUrl" class="setup-input" placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=...">
-        <div>
-          <button class="btn-primary" onclick="loadRecoveryData()">Load Data</button>
-        </div>
+        <button class="btn-primary" onclick="loadRecoveryData()">Load Data</button>
       </div>
     </div>
 
@@ -321,28 +355,25 @@
       <div class="controls-bar">
         <select id="recMonth" class="control-select"></select>
         <select id="recYear" class="control-select"></select>
-        <input type="number" id="recTopN" class="control-select" value="10" style="width: 80px;">
         <button class="btn-primary" onclick="renderRecovery()" style="padding: 8px 20px;">Apply</button>
       </div>
-
       <div class="kpi-grid" id="recKpis"></div>
-
       <div class="charts-grid">
         <div class="chart-card">
-          <div class="chart-title">Top Customers by Recovery</div>
+          <div class="chart-title">📊 Top Customers by Recovery Amount</div>
           <canvas id="recBarChart"></canvas>
         </div>
         <div class="chart-card">
-          <div class="chart-title">Recovery Distribution</div>
+          <div class="chart-title">🥧 Recovery Distribution by Customer</div>
           <canvas id="recDonutChart"></canvas>
         </div>
       </div>
-
       <div class="table-container">
-        <table>
+        <table id="recTable">
           <thead><tr><th>#</th><th>Customer Name</th><th>Amount Recovered</th><th>Invoice #</th><th>Date</th></tr></thead>
           <tbody id="recTableBody"></tbody>
         </table>
+        <div id="recPagination" class="pagination"></div>
       </div>
     </div>
   </div>
@@ -354,43 +385,38 @@
         <h2>📋 Connect Your Outstanding Data</h2>
         <p>Paste the published CSV URL from your Outstanding tab</p>
         <input type="text" id="outstandingCsvUrl" class="setup-input" placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=...">
-        <div>
-          <button class="btn-primary" onclick="loadOutstandingData()">Load Data</button>
-        </div>
+        <button class="btn-primary" onclick="loadOutstandingData()">Load Data</button>
       </div>
     </div>
 
     <div id="outstandingDashboard" style="display: none;">
       <div class="controls-bar">
-        <input type="text" id="outSearch" class="control-select" placeholder="Search..." style="width: 180px;" oninput="renderOutstanding()">
+        <input type="text" id="outSearch" class="control-select" placeholder="🔍 Search customer..." style="width: 200px;" oninput="renderOutstanding()">
         <select id="outRiskFilter" class="control-select" onchange="renderOutstanding()">
           <option value="">All Risks</option>
-          <option value="high">High Risk</option>
-          <option value="medium">Medium Risk</option>
-          <option value="processing">Processing</option>
+          <option value="high">⚠️ High Risk</option>
+          <option value="medium">🟡 Medium Risk</option>
+          <option value="processing">🟢 Processing</option>
         </select>
         <select id="outSalesFilter" class="control-select" onchange="renderOutstanding()"></select>
-        <select id="outStatusFilter" class="control-select" onchange="renderOutstanding()"></select>
       </div>
-
       <div class="kpi-grid" id="outKpis"></div>
-
       <div class="charts-grid">
         <div class="chart-card">
-          <div class="chart-title">Risk Breakdown</div>
-          <canvas id="riskChart"></canvas>
+          <div class="chart-title">📊 Top 10 Sales Persons by Dr Amount</div>
+          <canvas id="salesBarChart"></canvas>
         </div>
         <div class="chart-card">
-          <div class="chart-title">Top Customers (Dr Amount)</div>
-          <canvas id="topCustomersChart"></canvas>
+          <div class="chart-title">⚠️ Outstanding Risk Distribution</div>
+          <canvas id="riskBarChart"></canvas>
         </div>
       </div>
-
       <div class="table-container">
-        <table>
+        <table id="outTable">
           <thead><tr><th>Customer</th><th>Invoice #</th><th>Date</th><th>Dr Amount</th><th>Sales Person</th><th>Risk</th><th>Status</th></tr></thead>
           <tbody id="outTableBody"></tbody>
         </table>
+        <div id="outPagination" class="pagination"></div>
       </div>
     </div>
   </div>
@@ -401,19 +427,15 @@
       <h2>⚙ Configuration</h2>
       <div style="text-align: left; margin-top: 24px;">
         <div style="margin-bottom: 20px;">
-          <label style="color: #9ca3af; display: block; margin-bottom: 8px;">High Risk (invoices before)</label>
+          <label>High Risk (invoices before)</label>
           <input type="month" id="configHighBefore" class="setup-input" value="2026-01">
         </div>
         <div style="margin-bottom: 20px;">
-          <label style="color: #9ca3af; display: block; margin-bottom: 8px;">Medium Risk (invoices before)</label>
+          <label>Medium Risk (invoices before)</label>
           <input type="month" id="configMedBefore" class="setup-input" value="2026-03">
         </div>
         <div style="margin-bottom: 20px;">
-          <label style="color: #9ca3af; display: block; margin-bottom: 8px;">Processing (invoices from)</label>
-          <input type="month" id="configProcFrom" class="setup-input" value="2026-03">
-        </div>
-        <div style="margin-bottom: 20px;">
-          <label style="color: #9ca3af; display: block; margin-bottom: 8px;">Currency Symbol</label>
+          <label>Currency Symbol</label>
           <input type="text" id="configCurrency" class="setup-input" value="AED">
         </div>
         <button class="btn-primary" onclick="saveConfig()">Save Settings</button>
@@ -422,7 +444,7 @@
   </div>
 </div>
 
-<div id="toast" style="display: none; position: fixed; bottom: 24px; right: 24px; background: #1e293b; padding: 12px 24px; border-radius: 40px; z-index: 1000;"></div>
+<div id="toast" class="toast" style="display: none;"></div>
 
 <script>
 // ============================================================
@@ -430,12 +452,13 @@
 // ============================================================
 let recoveryData = [];
 let outstandingData = [];
-let recBarChart, recDonutChart, riskChart, topCustChart;
+let recBarChart, recDonutChart, salesBarChart, riskBarChart;
+let recCurrentPage = 1, outCurrentPage = 1;
+let itemsPerPage = 10;
 
 let config = {
   highBefore: '2026-01',
   medBefore: '2026-03',
-  procFrom: '2026-03',
   currency: 'AED'
 };
 
@@ -443,20 +466,28 @@ let config = {
 try {
   let saved = localStorage.getItem('financeConfig');
   if (saved) config = { ...config, ...JSON.parse(saved) };
+  let theme = localStorage.getItem('theme');
+  if (theme === 'light') document.body.classList.add('light');
 } catch(e) {}
 
 document.getElementById('configHighBefore').value = config.highBefore;
 document.getElementById('configMedBefore').value = config.medBefore;
-document.getElementById('configProcFrom').value = config.procFrom;
 document.getElementById('configCurrency').value = config.currency;
 
 function saveConfig() {
   config.highBefore = document.getElementById('configHighBefore').value;
   config.medBefore = document.getElementById('configMedBefore').value;
-  config.procFrom = document.getElementById('configProcFrom').value;
   config.currency = document.getElementById('configCurrency').value;
   localStorage.setItem('financeConfig', JSON.stringify(config));
   showToast('Settings saved');
+  if (outstandingData.length) renderOutstanding();
+}
+
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+  // Redraw charts to update colors
+  if (recoveryData.length) renderRecovery();
   if (outstandingData.length) renderOutstanding();
 }
 
@@ -475,42 +506,28 @@ function showPage(page) {
 }
 
 // ============================================================
-// 🔧 FIXED: Parse amounts with commas correctly
+// HELPERS
 // ============================================================
 function parseDate(str) {
   if (!str) return null;
   let s = String(str).trim();
   const months = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
   let match = s.match(/(\d{1,2})[-\/](jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[-\/](\d{4})/i);
-  if (match) {
-    return new Date(parseInt(match[3]), months[match[2].toLowerCase()], parseInt(match[1]));
-  }
+  if (match) return new Date(parseInt(match[3]), months[match[2].toLowerCase()], parseInt(match[1]));
   match = s.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
-  if (match) {
-    return new Date(parseInt(match[1]), parseInt(match[2])-1, parseInt(match[3]));
-  }
+  if (match) return new Date(parseInt(match[1]), parseInt(match[2])-1, parseInt(match[3]));
   match = s.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
-  if (match) {
-    return new Date(parseInt(match[3]), parseInt(match[2])-1, parseInt(match[1]));
-  }
+  if (match) return new Date(parseInt(match[3]), parseInt(match[2])-1, parseInt(match[1]));
   let d = new Date(s);
   return isNaN(d.getTime()) ? null : d;
 }
 
-// 🔧 FIXED: Properly parse numbers with commas like "46,200.00"
 function parseAmount(val) {
   if (!val) return 0;
   if (typeof val === 'number') return val;
-  
-  // Remove ALL commas first
   let cleaned = String(val).replace(/,/g, '');
-  
-  // Extract the number (handles "46200.00" or "46200")
   let match = cleaned.match(/[\d.]+/);
-  if (match) {
-    let num = parseFloat(match[0]);
-    return isNaN(num) ? 0 : num;
-  }
+  if (match) return parseFloat(match[0]) || 0;
   return 0;
 }
 
@@ -535,18 +552,27 @@ function loadRecoveryData() {
 }
 
 function initRecovery() {
-  let years = [...new Set(recoveryData.map(r => {
-    let d = parseDate(r['Recovery Date'] || r['Invoice Date']);
-    return d ? d.getFullYear() : null;
-  }).filter(Boolean))].sort((a,b)=>b-a);
+  // Get unique months that actually have data
+  let monthSet = new Set();
+  let yearSet = new Set();
   
-  if (years.length === 0) years = [2026];
+  recoveryData.forEach(r => {
+    let d = parseDate(r['Recovery Date'] || r['Invoice Date']);
+    if (d) {
+      monthSet.add(d.getMonth() + 1);
+      yearSet.add(d.getFullYear());
+    }
+  });
+  
+  let months = Array.from(monthSet).sort((a,b) => a-b);
+  let years = Array.from(yearSet).sort((a,b) => b-a);
   
   let monthSelect = document.getElementById('recMonth');
   let yearSelect = document.getElementById('recYear');
   
-  yearSelect.innerHTML = years.map(y => `<option>${y}</option>`).join('');
-  monthSelect.innerHTML = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m,i) => `<option value="${i+1}">${m}</option>`).join('');
+  let monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  monthSelect.innerHTML = months.map(m => `<option value="${m}">${monthNames[m-1]}</option>`).join('');
+  yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
   
   renderRecovery();
 }
@@ -556,13 +582,13 @@ function renderRecovery() {
   
   let month = parseInt(document.getElementById('recMonth').value);
   let year = parseInt(document.getElementById('recYear').value);
-  let topN = parseInt(document.getElementById('recTopN').value);
   
   let filtered = recoveryData.filter(r => {
     let d = parseDate(r['Recovery Date'] || r['Invoice Date']);
     return d && d.getMonth()+1 === month && d.getFullYear() === year;
   });
   
+  // KPIs
   let total = filtered.reduce((s,r) => s + parseAmount(r['Amount Recovered']), 0);
   let avg = filtered.length ? total / filtered.length : 0;
   let topCustomer = filtered.reduce((best,r) => {
@@ -570,13 +596,16 @@ function renderRecovery() {
     return amt > best.amt ? { name: r['Client / Account Name'] || r['Customer Name'], amt } : best;
   }, { name: '—', amt: 0 });
   
+  let monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  
   document.getElementById('recKpis').innerHTML = `
-    <div class="kpi-card"><div class="kpi-label">Total Recovered</div><div class="kpi-value">${formatCurrency(total)}</div><div class="kpi-sub">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][month-1]} ${year}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Total Recovered</div><div class="kpi-value">${formatCurrency(total)}</div><div class="kpi-sub">${monthNames[month-1]} ${year}</div></div>
     <div class="kpi-card"><div class="kpi-label">Transactions</div><div class="kpi-value">${filtered.length}</div><div class="kpi-sub">Payments received</div></div>
     <div class="kpi-card"><div class="kpi-label">Top Customer</div><div class="kpi-value" style="font-size:18px;">${(topCustomer.name || '—').substring(0,20)}</div><div class="kpi-sub">${formatCurrency(topCustomer.amt)}</div></div>
     <div class="kpi-card"><div class="kpi-label">Avg Transaction</div><div class="kpi-value">${formatCurrency(avg)}</div><div class="kpi-sub">Average recovery</div></div>
   `;
   
+  // Aggregate by customer
   let customerMap = new Map();
   filtered.forEach(r => {
     let name = r['Client / Account Name'] || r['Customer Name'] || 'Unknown';
@@ -584,28 +613,44 @@ function renderRecovery() {
     customerMap.set(name, (customerMap.get(name) || 0) + amt);
   });
   
-  let sorted = [...customerMap.entries()].sort((a,b) => b[1] - a[1]).slice(0, topN);
-  let colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6'];
+  let sorted = [...customerMap.entries()].sort((a,b) => b[1] - a[1]).slice(0, 10);
+  let colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#14b8a6'];
   
   if (recBarChart) recBarChart.destroy();
   recBarChart = new Chart(document.getElementById('recBarChart'), {
     type: 'bar',
     data: { labels: sorted.map(s => s[0].length > 15 ? s[0].substring(0,12)+'…' : s[0]), datasets: [{ data: sorted.map(s => s[1]), backgroundColor: colors, borderRadius: 8 }] },
-    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => formatCurrency(ctx.raw) } } }, scales: { y: { ticks: { callback: (v) => formatCurrency(v) } } } }
+    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => formatCurrency(ctx.raw) } } }, scales: { y: { beginAtZero: true, ticks: { callback: (v) => formatCurrency(v) } } } }
   });
   
   if (recDonutChart) recDonutChart.destroy();
   recDonutChart = new Chart(document.getElementById('recDonutChart'), {
     type: 'doughnut',
     data: { labels: sorted.map(s => s[0].substring(0,15)), datasets: [{ data: sorted.map(s => s[1]), backgroundColor: colors, borderWidth: 0 }] },
-    options: { responsive: true, maintainAspectRatio: true, cutout: '55%', plugins: { legend: { position: 'right', labels: { color: '#9ca3af', font: { size: 10 } } }, tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatCurrency(ctx.raw)}` } } } }
+    options: { responsive: true, maintainAspectRatio: true, cutout: '55%', plugins: { legend: { position: 'right', labels: { font: { size: 10 } } }, tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatCurrency(ctx.raw)}` } } } }
   });
   
+  // Pagination for table
+  let totalPages = Math.ceil(sorted.length / itemsPerPage);
+  let start = (recCurrentPage - 1) * itemsPerPage;
+  let paginated = sorted.slice(start, start + itemsPerPage);
+  
   let tbody = document.getElementById('recTableBody');
-  tbody.innerHTML = sorted.map(([name, amt], i) => {
+  tbody.innerHTML = paginated.map(([name, amt], i) => {
     let inv = filtered.find(r => (r['Client / Account Name'] || r['Customer Name']) === name);
-    return `<tr><td style="color:#8b5cf6">${i+1}</td><td>${name}</td><td style="font-weight:600">${formatCurrency(amt)}</td><td>${inv?.['Invoice #'] || '—'}</td><td>${inv?.['Recovery Date'] || inv?.['Invoice Date'] || '—'}</td></tr>`;
+    return `<tr><td>${start + i + 1}</td><td>${name}</td><td style="font-weight:600">${formatCurrency(amt)}</td><td>${inv?.['Invoice #'] || '—'}</td><td>${inv?.['Recovery Date'] || inv?.['Invoice Date'] || '—'}</td></tr>`;
   }).join('');
+  
+  document.getElementById('recPagination').innerHTML = `
+    <button class="page-btn" onclick="changeRecPage(${recCurrentPage-1})" ${recCurrentPage === 1 ? 'disabled' : ''}>‹ Prev</button>
+    <span style="padding: 6px 12px;">Page ${recCurrentPage} of ${totalPages}</span>
+    <button class="page-btn" onclick="changeRecPage(${recCurrentPage+1})" ${recCurrentPage === totalPages ? 'disabled' : ''}>Next ›</button>
+  `;
+}
+
+function changeRecPage(page) {
+  recCurrentPage = page;
+  renderRecovery();
 }
 
 // ============================================================
@@ -637,9 +682,7 @@ function getRisk(dateStr) {
 
 function initOutstanding() {
   let sales = [...new Set(outstandingData.map(r => r['Sales Person']).filter(Boolean))];
-  let statuses = [...new Set(outstandingData.map(r => r['Status']).filter(Boolean))];
   document.getElementById('outSalesFilter').innerHTML = '<option value="">All Sales</option>' + sales.map(s => `<option>${s}</option>`).join('');
-  document.getElementById('outStatusFilter').innerHTML = '<option value="">All Status</option>' + statuses.map(s => `<option>${s}</option>`).join('');
   renderOutstanding();
 }
 
@@ -649,62 +692,85 @@ function renderOutstanding() {
   let search = (document.getElementById('outSearch').value || '').toLowerCase();
   let riskFilter = document.getElementById('outRiskFilter').value;
   let salesFilter = document.getElementById('outSalesFilter').value;
-  let statusFilter = document.getElementById('outStatusFilter').value;
   
   let filtered = outstandingData.filter(r => {
-    if (search && !(r['Customer Name'] || '').toLowerCase().includes(search) && !(r['Invoice #'] || '').toLowerCase().includes(search)) return false;
+    if (search && !(r['Customer Name'] || '').toLowerCase().includes(search)) return false;
     let risk = getRisk(r['Invoice Date']);
     if (riskFilter && risk !== riskFilter) return false;
     if (salesFilter && r['Sales Person'] !== salesFilter) return false;
-    if (statusFilter && r['Status'] !== statusFilter) return false;
     return true;
   });
   
+  // KPIs
   let total = filtered.reduce((s,r) => s + parseAmount(r['Dr']), 0);
   let avg = filtered.length ? total / filtered.length : 0;
-  let topCustomer = filtered.reduce((best,r) => {
-    let amt = parseAmount(r['Dr']);
-    return amt > best.amt ? { name: r['Customer Name'], amt } : best;
-  }, { name: '—', amt: 0 });
+  let highRiskTotal = filtered.filter(r => getRisk(r['Invoice Date']) === 'high').reduce((s,r) => s + parseAmount(r['Dr']), 0);
   
   document.getElementById('outKpis').innerHTML = `
     <div class="kpi-card"><div class="kpi-label">Total Outstanding</div><div class="kpi-value">${formatCurrency(total)}</div><div class="kpi-sub">All invoices</div></div>
-    <div class="kpi-card"><div class="kpi-label">High Risk</div><div class="kpi-value">${filtered.filter(r => getRisk(r['Invoice Date']) === 'high').length}</div><div class="kpi-sub">Before ${config.highBefore}</div></div>
-    <div class="kpi-card"><div class="kpi-label">Medium Risk</div><div class="kpi-value">${filtered.filter(r => getRisk(r['Invoice Date']) === 'medium').length}</div><div class="kpi-sub">Before ${config.medBefore}</div></div>
-    <div class="kpi-card"><div class="kpi-label">Processing</div><div class="kpi-value">${filtered.filter(r => getRisk(r['Invoice Date']) === 'processing').length}</div><div class="kpi-sub">From ${config.procFrom}</div></div>
+    <div class="kpi-card"><div class="kpi-label">High Risk Amount</div><div class="kpi-value">${formatCurrency(highRiskTotal)}</div><div class="kpi-sub">Before ${config.highBefore}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Invoices Count</div><div class="kpi-value">${filtered.length}</div><div class="kpi-sub">Total open invoices</div></div>
+    <div class="kpi-card"><div class="kpi-label">Average Invoice</div><div class="kpi-value">${formatCurrency(avg)}</div><div class="kpi-sub">Per transaction</div></div>
   `;
   
-  let riskData = { high:0, medium:0, processing:0 };
+  // Top 10 Sales Persons Bar Chart
+  let salesMap = new Map();
+  filtered.forEach(r => {
+    let salesPerson = r['Sales Person'] || 'Unassigned';
+    let amt = parseAmount(r['Dr']);
+    salesMap.set(salesPerson, (salesMap.get(salesPerson) || 0) + amt);
+  });
+  let topSales = [...salesMap.entries()].sort((a,b) => b[1] - a[1]).slice(0, 10);
+  
+  if (salesBarChart) salesBarChart.destroy();
+  salesBarChart = new Chart(document.getElementById('salesBarChart'), {
+    type: 'bar',
+    data: { labels: topSales.map(s => s[0].length > 12 ? s[0].substring(0,10)+'…' : s[0]), datasets: [{ data: topSales.map(s => s[1]), backgroundColor: '#6366f1', borderRadius: 8 }] },
+    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => formatCurrency(ctx.raw) } } }, scales: { y: { beginAtZero: true, ticks: { callback: (v) => formatCurrency(v) } } } }
+  });
+  
+  // Risk Distribution Bar Chart (Better than donut)
+  let riskData = { high: 0, medium: 0, processing: 0 };
   filtered.forEach(r => { riskData[getRisk(r['Invoice Date'])] += parseAmount(r['Dr']); });
   
-  if (riskChart) riskChart.destroy();
-  riskChart = new Chart(document.getElementById('riskChart'), {
-    type: 'doughnut',
-    data: { labels: ['High Risk', 'Medium Risk', 'Processing'], datasets: [{ data: [riskData.high, riskData.medium, riskData.processing], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderWidth: 0 }] },
-    options: { responsive: true, maintainAspectRatio: true, cutout: '55%', plugins: { legend: { position: 'right', labels: { color: '#9ca3af' } }, tooltip: { callbacks: { label: (ctx) => formatCurrency(ctx.raw) } } } }
-  });
-  
-  let custMap = new Map();
-  filtered.forEach(r => {
-    let name = r['Customer Name'] || 'Unknown';
-    custMap.set(name, (custMap.get(name) || 0) + parseAmount(r['Dr']));
-  });
-  let topCust = [...custMap.entries()].sort((a,b) => b[1] - a[1]).slice(0, 10);
-  
-  if (topCustChart) topCustChart.destroy();
-  topCustChart = new Chart(document.getElementById('topCustomersChart'), {
+  if (riskBarChart) riskBarChart.destroy();
+  riskBarChart = new Chart(document.getElementById('riskBarChart'), {
     type: 'bar',
-    data: { labels: topCust.map(c => c[0].length > 15 ? c[0].substring(0,12)+'…' : c[0]), datasets: [{ data: topCust.map(c => c[1]), backgroundColor: '#6366f1', borderRadius: 8 }] },
-    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => formatCurrency(ctx.raw) } } }, scales: { y: { ticks: { callback: (v) => formatCurrency(v) } } } }
+    data: { labels: ['High Risk', 'Medium Risk', 'Processing'], datasets: [{ data: [riskData.high, riskData.medium, riskData.processing], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderRadius: 8 }] },
+    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => formatCurrency(ctx.raw) } } }, scales: { y: { beginAtZero: true, ticks: { callback: (v) => formatCurrency(v) } } } }
   });
+  
+  // Pagination
+  let totalPages = Math.ceil(filtered.length / itemsPerPage);
+  let start = (outCurrentPage - 1) * itemsPerPage;
+  let paginated = filtered.slice(start, start + itemsPerPage);
   
   let tbody = document.getElementById('outTableBody');
-  tbody.innerHTML = filtered.map(r => {
+  tbody.innerHTML = paginated.map(r => {
     let risk = getRisk(r['Invoice Date']);
     let riskClass = risk === 'high' ? 'badge-high' : risk === 'medium' ? 'badge-medium' : 'badge-processing';
     let riskText = risk === 'high' ? 'High' : risk === 'medium' ? 'Medium' : 'Processing';
-    return `<tr><td>${r['Customer Name'] || '—'}</td><td>${r['Invoice #'] || '—'}</td><td>${r['Invoice Date'] || '—'}</td><td style="font-weight:600">${formatCurrency(parseAmount(r['Dr']))}</td><td>${r['Sales Person'] || '—'}</td><td><span class="badge ${riskClass}">${riskText}</span></td><td>${r['Status'] || '—'}</td></tr>`;
+    return `<tr>
+      <td>${r['Customer Name'] || '—'}</td>
+      <td>${r['Invoice #'] || '—'}</td>
+      <td>${r['Invoice Date'] || '—'}</td>
+      <td style="font-weight:600">${formatCurrency(parseAmount(r['Dr']))}</td>
+      <td>${r['Sales Person'] || '—'}</td>
+      <td><span class="badge ${riskClass}">${riskText}</span></td>
+      <td>${r['Status'] || '—'}</td>
+    </tr>`;
   }).join('');
+  
+  document.getElementById('outPagination').innerHTML = `
+    <button class="page-btn" onclick="changeOutPage(${outCurrentPage-1})" ${outCurrentPage === 1 ? 'disabled' : ''}>‹ Prev</button>
+    <span style="padding: 6px 12px;">Page ${outCurrentPage} of ${totalPages}</span>
+    <button class="page-btn" onclick="changeOutPage(${outCurrentPage+1})" ${outCurrentPage === totalPages ? 'disabled' : ''}>Next ›</button>
+  `;
+}
+
+function changeOutPage(page) {
+  outCurrentPage = page;
+  renderOutstanding();
 }
 </script>
 </body>
