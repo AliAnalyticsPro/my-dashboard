@@ -19,7 +19,6 @@
     color: #e8edf5;
   }
 
-  /* Navbar */
   .navbar {
     display: flex;
     justify-content: space-between;
@@ -67,14 +66,12 @@
     color: #e5e7eb;
   }
 
-  /* Main Container */
   .container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 24px 32px;
   }
 
-  /* Setup Panel */
   .setup-card {
     background: #0f111a;
     border: 1px solid #1e2434;
@@ -133,7 +130,6 @@
     margin: 8px;
   }
 
-  /* Controls Bar */
   .controls-bar {
     display: flex;
     flex-wrap: wrap;
@@ -155,7 +151,6 @@
     cursor: pointer;
   }
 
-  /* KPI Grid */
   .kpi-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -196,7 +191,6 @@
     margin-top: 8px;
   }
 
-  /* Charts Grid */
   .charts-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -225,7 +219,6 @@
     width: 100%;
   }
 
-  /* Table */
   .table-container {
     background: #0f111a;
     border: 1px solid #1e2434;
@@ -273,7 +266,6 @@
   .badge-medium { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
   .badge-processing { background: rgba(16, 185, 129, 0.15); color: #34d399; }
 
-  /* Hide pages */
   .page {
     display: none;
   }
@@ -282,7 +274,6 @@
     display: block;
   }
 
-  /* Toast */
   .toast {
     position: fixed;
     bottom: 24px;
@@ -322,7 +313,6 @@
         <input type="text" id="recoveryCsvUrl" class="setup-input" placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=...">
         <div>
           <button class="btn-primary" onclick="loadRecoveryData()">Load Data</button>
-          <button class="btn-secondary" onclick="loadDemoRecovery()">Load Demo</button>
         </div>
       </div>
     </div>
@@ -366,7 +356,6 @@
         <input type="text" id="outstandingCsvUrl" class="setup-input" placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=...">
         <div>
           <button class="btn-primary" onclick="loadOutstandingData()">Load Data</button>
-          <button class="btn-secondary" onclick="loadDemoOutstanding()">Load Demo</button>
         </div>
       </div>
     </div>
@@ -456,7 +445,6 @@ try {
   if (saved) config = { ...config, ...JSON.parse(saved) };
 } catch(e) {}
 
-// Apply config to inputs
 document.getElementById('configHighBefore').value = config.highBefore;
 document.getElementById('configMedBefore').value = config.medBefore;
 document.getElementById('configProcFrom').value = config.procFrom;
@@ -487,7 +475,7 @@ function showPage(page) {
 }
 
 // ============================================================
-// DATE PARSER - Handles "5-Feb-2026" format
+// 🔧 FIXED: Parse amounts with commas correctly
 // ============================================================
 function parseDate(str) {
   if (!str) return null;
@@ -507,6 +495,23 @@ function parseDate(str) {
   }
   let d = new Date(s);
   return isNaN(d.getTime()) ? null : d;
+}
+
+// 🔧 FIXED: Properly parse numbers with commas like "46,200.00"
+function parseAmount(val) {
+  if (!val) return 0;
+  if (typeof val === 'number') return val;
+  
+  // Remove ALL commas first
+  let cleaned = String(val).replace(/,/g, '');
+  
+  // Extract the number (handles "46200.00" or "46200")
+  let match = cleaned.match(/[\d.]+/);
+  if (match) {
+    let num = parseFloat(match[0]);
+    return isNaN(num) ? 0 : num;
+  }
+  return 0;
 }
 
 function formatCurrency(amount) {
@@ -529,26 +534,13 @@ function loadRecoveryData() {
   }, error: () => { showToast('Error loading CSV'); } });
 }
 
-function loadDemoRecovery() {
-  recoveryData = [];
-  for (let i = 1; i <= 45; i++) {
-    recoveryData.push({
-      'Client / Account Name': 'Customer ' + i,
-      'Amount Recovered': Math.floor(Math.random() * 80000 + 10000),
-      'Recovery Date': (Math.floor(Math.random() * 28) + 1) + '-' + ['Jan','Feb','Mar','Apr','May','Jun'][Math.floor(Math.random()*6)] + '-2026',
-      'Invoice #': 'INV-' + (10000 + i)
-    });
-  }
-  initRecovery();
-  document.getElementById('recoverySetup').style.display = 'none';
-  document.getElementById('recoveryDashboard').style.display = 'block';
-}
-
 function initRecovery() {
   let years = [...new Set(recoveryData.map(r => {
-    let d = parseDate(r['Recovery Date']);
+    let d = parseDate(r['Recovery Date'] || r['Invoice Date']);
     return d ? d.getFullYear() : null;
   }).filter(Boolean))].sort((a,b)=>b-a);
+  
+  if (years.length === 0) years = [2026];
   
   let monthSelect = document.getElementById('recMonth');
   let yearSelect = document.getElementById('recYear');
@@ -560,35 +552,35 @@ function initRecovery() {
 }
 
 function renderRecovery() {
+  if (!recoveryData.length) return;
+  
   let month = parseInt(document.getElementById('recMonth').value);
   let year = parseInt(document.getElementById('recYear').value);
   let topN = parseInt(document.getElementById('recTopN').value);
   
   let filtered = recoveryData.filter(r => {
-    let d = parseDate(r['Recovery Date']);
+    let d = parseDate(r['Recovery Date'] || r['Invoice Date']);
     return d && d.getMonth()+1 === month && d.getFullYear() === year;
   });
   
-  // KPIs
-  let total = filtered.reduce((s,r) => s + (parseFloat(r['Amount Recovered']) || 0), 0);
+  let total = filtered.reduce((s,r) => s + parseAmount(r['Amount Recovered']), 0);
   let avg = filtered.length ? total / filtered.length : 0;
   let topCustomer = filtered.reduce((best,r) => {
-    let amt = parseFloat(r['Amount Recovered']) || 0;
-    return amt > best.amt ? { name: r['Client / Account Name'], amt } : best;
+    let amt = parseAmount(r['Amount Recovered']);
+    return amt > best.amt ? { name: r['Client / Account Name'] || r['Customer Name'], amt } : best;
   }, { name: '—', amt: 0 });
   
   document.getElementById('recKpis').innerHTML = `
     <div class="kpi-card"><div class="kpi-label">Total Recovered</div><div class="kpi-value">${formatCurrency(total)}</div><div class="kpi-sub">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][month-1]} ${year}</div></div>
     <div class="kpi-card"><div class="kpi-label">Transactions</div><div class="kpi-value">${filtered.length}</div><div class="kpi-sub">Payments received</div></div>
-    <div class="kpi-card"><div class="kpi-label">Top Customer</div><div class="kpi-value" style="font-size:18px;">${topCustomer.name.substring(0,20)}</div><div class="kpi-sub">${formatCurrency(topCustomer.amt)}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Top Customer</div><div class="kpi-value" style="font-size:18px;">${(topCustomer.name || '—').substring(0,20)}</div><div class="kpi-sub">${formatCurrency(topCustomer.amt)}</div></div>
     <div class="kpi-card"><div class="kpi-label">Avg Transaction</div><div class="kpi-value">${formatCurrency(avg)}</div><div class="kpi-sub">Average recovery</div></div>
   `;
   
-  // Aggregate by customer
   let customerMap = new Map();
   filtered.forEach(r => {
-    let name = r['Client / Account Name'];
-    let amt = parseFloat(r['Amount Recovered']) || 0;
+    let name = r['Client / Account Name'] || r['Customer Name'] || 'Unknown';
+    let amt = parseAmount(r['Amount Recovered']);
     customerMap.set(name, (customerMap.get(name) || 0) + amt);
   });
   
@@ -611,8 +603,8 @@ function renderRecovery() {
   
   let tbody = document.getElementById('recTableBody');
   tbody.innerHTML = sorted.map(([name, amt], i) => {
-    let inv = filtered.find(r => r['Client / Account Name'] === name);
-    return `<tr><td style="color:#8b5cf6">${i+1}</td><td>${name}</td><td style="font-weight:600">${formatCurrency(amt)}</td><td>${inv?.['Invoice #'] || '—'}</td><td>${inv?.['Recovery Date'] || '—'}</td></tr>`;
+    let inv = filtered.find(r => (r['Client / Account Name'] || r['Customer Name']) === name);
+    return `<tr><td style="color:#8b5cf6">${i+1}</td><td>${name}</td><td style="font-weight:600">${formatCurrency(amt)}</td><td>${inv?.['Invoice #'] || '—'}</td><td>${inv?.['Recovery Date'] || inv?.['Invoice Date'] || '—'}</td></tr>`;
   }).join('');
 }
 
@@ -630,27 +622,6 @@ function loadOutstandingData() {
     document.getElementById('outstandingDashboard').style.display = 'block';
     showToast('Loaded ' + outstandingData.length + ' records');
   }, error: () => { showToast('Error loading CSV'); } });
-}
-
-function loadDemoOutstanding() {
-  outstandingData = [];
-  let customers = ['Al Futtaim Group', 'Emirates NBD', 'Mashreq Bank', 'ADNOC', 'Emaar', 'Etisalat'];
-  let sales = ['Ahmed Al Mansoori', 'Sara Khan', 'Ravi Patel'];
-  let statuses = ['Pending', 'Follow Up', 'Paid', 'Disputed'];
-  for (let i = 1; i <= 60; i++) {
-    outstandingData.push({
-      'Customer Name': customers[i % customers.length],
-      'Invoice #': 'INV-' + (20000 + i),
-      'Invoice Date': (Math.floor(Math.random() * 28) + 1) + '-' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][Math.floor(Math.random()*12)] + '-2026',
-      'LPO #': 'LPO-' + (5000 + i),
-      'Dr': Math.floor(Math.random() * 50000 + 5000),
-      'Sales Person': sales[i % sales.length],
-      'Status': statuses[i % statuses.length]
-    });
-  }
-  initOutstanding();
-  document.getElementById('outstandingSetup').style.display = 'none';
-  document.getElementById('outstandingDashboard').style.display = 'block';
 }
 
 function getRisk(dateStr) {
@@ -673,6 +644,8 @@ function initOutstanding() {
 }
 
 function renderOutstanding() {
+  if (!outstandingData.length) return;
+  
   let search = (document.getElementById('outSearch').value || '').toLowerCase();
   let riskFilter = document.getElementById('outRiskFilter').value;
   let salesFilter = document.getElementById('outSalesFilter').value;
@@ -687,10 +660,10 @@ function renderOutstanding() {
     return true;
   });
   
-  let total = filtered.reduce((s,r) => s + (parseFloat(r['Dr']) || 0), 0);
+  let total = filtered.reduce((s,r) => s + parseAmount(r['Dr']), 0);
   let avg = filtered.length ? total / filtered.length : 0;
   let topCustomer = filtered.reduce((best,r) => {
-    let amt = parseFloat(r['Dr']) || 0;
+    let amt = parseAmount(r['Dr']);
     return amt > best.amt ? { name: r['Customer Name'], amt } : best;
   }, { name: '—', amt: 0 });
   
@@ -702,7 +675,7 @@ function renderOutstanding() {
   `;
   
   let riskData = { high:0, medium:0, processing:0 };
-  filtered.forEach(r => { riskData[getRisk(r['Invoice Date'])] += parseFloat(r['Dr']) || 0; });
+  filtered.forEach(r => { riskData[getRisk(r['Invoice Date'])] += parseAmount(r['Dr']); });
   
   if (riskChart) riskChart.destroy();
   riskChart = new Chart(document.getElementById('riskChart'), {
@@ -714,7 +687,7 @@ function renderOutstanding() {
   let custMap = new Map();
   filtered.forEach(r => {
     let name = r['Customer Name'] || 'Unknown';
-    custMap.set(name, (custMap.get(name) || 0) + (parseFloat(r['Dr']) || 0));
+    custMap.set(name, (custMap.get(name) || 0) + parseAmount(r['Dr']));
   });
   let topCust = [...custMap.entries()].sort((a,b) => b[1] - a[1]).slice(0, 10);
   
@@ -730,7 +703,7 @@ function renderOutstanding() {
     let risk = getRisk(r['Invoice Date']);
     let riskClass = risk === 'high' ? 'badge-high' : risk === 'medium' ? 'badge-medium' : 'badge-processing';
     let riskText = risk === 'high' ? 'High' : risk === 'medium' ? 'Medium' : 'Processing';
-    return `<tr><td>${r['Customer Name'] || '—'}</td><td>${r['Invoice #'] || '—'}</td><td>${r['Invoice Date'] || '—'}</td><td style="font-weight:600">${formatCurrency(parseFloat(r['Dr']) || 0)}</td><td>${r['Sales Person'] || '—'}</td><td><span class="badge ${riskClass}">${riskText}</span></td><td>${r['Status'] || '—'}</td></tr>`;
+    return `<tr><td>${r['Customer Name'] || '—'}</td><td>${r['Invoice #'] || '—'}</td><td>${r['Invoice Date'] || '—'}</td><td style="font-weight:600">${formatCurrency(parseAmount(r['Dr']))}</td><td>${r['Sales Person'] || '—'}</td><td><span class="badge ${riskClass}">${riskText}</span></td><td>${r['Status'] || '—'}</td></tr>`;
   }).join('');
 }
 </script>
